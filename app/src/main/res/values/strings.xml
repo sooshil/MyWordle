@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Wordle</string>
-    <string name="submit">Submit</string>
+    <string name="check">Check</string>
     <string name="hint">Hint</string>
 </resources>

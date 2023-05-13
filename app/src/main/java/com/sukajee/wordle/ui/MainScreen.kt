@@ -50,7 +50,9 @@ fun MainScreen(
     StateLessMainScreen(
         state = state,
         onKey = { viewModel.onKey(it) },
-        onBackSpace = { viewModel.onBackSpace() }
+        onBackSpace = { viewModel.onBackSpace() },
+        onSubmitClick = { viewModel.onSubmit() },
+        onHintClick = { viewModel.onHint() }
     )
 }
 
@@ -60,6 +62,8 @@ fun StateLessMainScreen(
     state: GameUiState,
     onKey: (Char) -> Unit,
     onBackSpace: () -> Unit,
+    onSubmitClick: () -> Unit,
+    onHintClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
@@ -77,7 +81,9 @@ fun StateLessMainScreen(
                 padding = padding,
                 state = state,
                 onKey = onKey,
-                onBackSpace = onBackSpace
+                onBackSpace = onBackSpace,
+                onSubmitClick = onSubmitClick,
+                onHintClick = onHintClick
             )
         } else {
             LandscapeMainScreen(padding)
@@ -90,7 +96,9 @@ fun PortraitMainScreen(
     padding: PaddingValues,
     state: GameUiState,
     onKey: (Char) -> Unit,
-    onBackSpace: () -> Unit
+    onBackSpace: () -> Unit,
+    onHintClick: () -> Unit,
+    onSubmitClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -137,14 +145,14 @@ fun PortraitMainScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
-                    onClick = { /*TODO*/ }
+                    onClick = onHintClick
                 ) {
                     Text(text = stringResource(id = strings.hint))
                 }
                 Button(
-                    onClick = { /*TODO*/ }
+                    onClick = onSubmitClick
                 ) {
-                    Text(text = stringResource(id = strings.submit))
+                    Text(text = stringResource(id = strings.check))
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
@@ -280,17 +288,19 @@ private fun Char.isBackSpace() = this == '⌫'
 fun MainScreenPreview() {
     StateLessMainScreen(
         state = GameUiState(
-            grid = listOf(
-                listOf('A', 'B', 'C', 'D', 'E'),
-                listOf('H', 'P', 'U', 'M', 'F'),
-                listOf('T', 'S', 'X', 'Z', 'W'),
-                listOf('U', 'R', 'M', 'L', 'G'),
-                listOf('V', 'Q', 'N', 'K', 'H'),
-                listOf('W', 'P', 'O', 'Z', 'I')
+            grid = mutableListOf(
+                mutableListOf('A', 'B', 'C', 'D', 'E'),
+                mutableListOf('H', 'P', 'U', 'M', 'F'),
+                mutableListOf('T', 'S', 'X', 'Z', 'W'),
+                mutableListOf('U', 'R', 'M', 'L', 'G'),
+                mutableListOf('V', 'Q', 'N', 'K', 'H'),
+                mutableListOf('W', 'P', 'O', 'Z', 'I')
             ),
             currentGridIndex = Pair(0, 0)
         ),
         onBackSpace = {},
-        onKey = {}
+        onKey = {},
+        onSubmitClick = {},
+        onHintClick = {}
     )
 }
