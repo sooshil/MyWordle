@@ -3,14 +3,11 @@
 Welcome to the Worldle Game! This is a word-guessing game where players try to guess a five-letter word within a limited number of attempts. The game is built using Jetpack Compose, a modern UI toolkit for Android app development.
 
 ## How to Play
-1 When you start the game all the boxes in the game board are empty. Now your task is to guess a 5 letter word.
 
+1. When you start the game all the boxes in the game board are empty. Now your task is to guess a 5 letter word.
 2. Enter your guess by tapping on the letter buttons displayed on the screen. The letters will be filled in the appropriate positions.
-
 3. You have a limited number of attempts to guess the word. With each incorrect guess, you'll receive feedback indicating which letters are correctly positioned (marked with a green background) and which letters are present in the word but in the wrong position (marked with a yellow background).
-
 4. Keep guessing until you correctly guess the word within the given attempts or until you run out of attempts.
-
 5. After the game ends, you'll have the option to play again by tapping the "Play Again" button.
 
 ## Customization
