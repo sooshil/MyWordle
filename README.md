@@ -24,7 +24,7 @@ Please ensure that your contributions align with the project's coding standards 
 
 ## License
 
-The Worldle Game is released under the [MIT License](LICENSE). You are free to use, modify, and distribute the codebase as per the terms of the license.
+The Worldle Game is released under the [Apache 2.0](LICENSE). You are free to use, modify, and distribute the codebase as per the terms of the license.
 
 ## Acknowledgements
 
