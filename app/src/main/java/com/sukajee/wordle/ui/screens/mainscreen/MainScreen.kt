@@ -1,4 +1,4 @@
-package com.sukajee.wordle.ui
+package com.sukajee.wordle.ui.screens.mainscreen
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -36,6 +36,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.sukajee.wordle.ui.previews.FontScalePreviews
+import com.sukajee.wordle.ui.GameUiState
+import com.sukajee.wordle.ui.previews.OrientationPreviews
+import com.sukajee.wordle.ui.components.TopBar
 import com.sukajee.wordle.R.string as strings
 
 const val FIRST_ROW_CHARACTERS = "QWERTYUIOP"
@@ -47,7 +51,9 @@ fun MainScreen(
     viewModel: MainViewModel
 ) {
     val state by viewModel.gameState.collectAsState()
+    val currentWord by viewModel.currentWord.collectAsState()
     StateLessMainScreen(
+        currentWord = currentWord,
         state = state,
         onKey = { viewModel.onKey(it) },
         onBackSpace = { viewModel.onBackSpace() },
@@ -59,6 +65,7 @@ fun MainScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StateLessMainScreen(
+    currentWord: String,
     state: GameUiState,
     onKey: (Char) -> Unit,
     onBackSpace: () -> Unit,
@@ -72,7 +79,7 @@ fun StateLessMainScreen(
         modifier = Modifier
             .fillMaxSize(),
         topBar = {
-            TopBar(title = stringResource(id = strings.app_name))
+            TopBar(title = currentWord) //stringResource(id = strings.app_name))
         }
     ) { padding ->
         if (portrait) {
@@ -287,6 +294,7 @@ private fun Char.isBackSpace() = this == '⌫'
 @Composable
 fun MainScreenPreview() {
     StateLessMainScreen(
+        currentWord = "OTHER",
         state = GameUiState(
             grid = mutableListOf(
                 mutableListOf('A', 'B', 'C', 'D', 'E'),

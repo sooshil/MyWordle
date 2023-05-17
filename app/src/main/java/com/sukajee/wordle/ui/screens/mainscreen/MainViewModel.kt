@@ -1,16 +1,43 @@
-package com.sukajee.wordle.ui
+package com.sukajee.wordle.ui.screens.mainscreen
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.sukajee.wordle.repository.BaseRepository
+import com.sukajee.wordle.ui.GameUiState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(
+    repository: BaseRepository
+) : ViewModel() {
 
     private val _gameState = MutableStateFlow(GameUiState())
     val gameState = _gameState.asStateFlow()
 
+    private var _currentWord = MutableStateFlow("")
+    val currentWord = _currentWord.asStateFlow()
+
+
+    private var wordList: List<String> = emptyList()
+    private var allWords: List<String> = emptyList()
+    private var usedWords: List<String> = emptyList()
+
     var isNextRowOpen = false
+
+    init {
+        viewModelScope.launch {
+            wordList = repository.getTopWords()
+            _currentWord.value = getWord()
+        }
+        viewModelScope.launch {
+            allWords = repository.getAllWords()
+        }
+    }
 
     fun onKey(key: Char) {
         _gameState.update { currentState ->
@@ -41,10 +68,21 @@ class MainViewModel : ViewModel() {
     }
 
     fun onSubmit() {
+        _gameState.update { currentState ->
 
+            val row = if(currentState.currentGridIndex.first >= 5) 5 else currentState.currentGridIndex.first + 1
+            currentState.copy(
+                currentGridIndex = Pair(row, 0)
+            )
+        }
     }
 
     fun onHint() {
 
+    }
+
+    private fun getWord() = wordList.let {
+        if(it.isNotEmpty()) it.random()
+        else ""
     }
 }
