@@ -1,4 +1,4 @@
-package com.sukajee.wordle.ui
+package com.sukajee.wordle.ui.previews
 
 import android.content.res.Configuration.UI_MODE_NIGHT_NO
 import android.content.res.Configuration.UI_MODE_NIGHT_YES

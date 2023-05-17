@@ -1,4 +1,4 @@
-package com.sukajee.wordle.ui
+package com.sukajee.wordle.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CenterAlignedTopAppBar
