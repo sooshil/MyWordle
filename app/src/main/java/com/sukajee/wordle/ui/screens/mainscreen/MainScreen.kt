@@ -52,15 +52,12 @@ import com.sukajee.wordle.util.getCellColor
 import com.sukajee.wordle.util.getCharColor
 import com.sukajee.wordle.R.string as strings
 
-const val FIRST_ROW_CHARACTERS = "QWERTYUIOP"
-const val SECOND_ROW_CHARACTERS = "ASDFGHJKL"
-const val THIRD_ROW_CHARACTERS = "ZXCVBNM⌫"
-
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
     val state by viewModel.gameState.collectAsState()
+    val keyState by viewModel.keyState.collectAsState()
     val currentWord by viewModel.currentWord.collectAsState()
     rememberCoroutineScope()
 
@@ -115,7 +112,7 @@ fun StateLessMainScreen(
 
             state.isGameOver?.let {
                 if (it) {
-                    val won = state.isWon ?: false
+                    val won = state.hasWon ?: false
                     CustomDialog(
                         title = stringResource(id = if (won) R.string.you_won else R.string.you_lost),
                         message = stringResource(id = R.string.start_new_game),
@@ -172,18 +169,6 @@ fun PortraitMainScreen(
                     repeat(5) { eachColumn ->
                         Spacer(modifier = Modifier.width(5.dp))
                         val cell = state.grid[eachRow][eachColumn]
-//                        val backGroundColor by animateColorAsState(
-//                            targetValue = getCellColor(cell = cell),
-//                            animationSpec = tween(
-//                                durationMillis = 300
-//                            )
-//                        )
-//                        val borderColor by animateColorAsState(
-//                            targetValue = getBorderColor(cell = cell),
-//                            animationSpec = tween(
-//                                durationMillis = 300
-//                            )
-//                        )
                         Box(
                             modifier = Modifier
                                 .size(56.dp)

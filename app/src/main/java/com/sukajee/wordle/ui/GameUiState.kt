@@ -11,7 +11,7 @@ data class GameUiState(
     val currentGridIndex: Pair<Int, Int> = Pair(0, 0),
     val error: ErrorType? = null,
     val isGameOver: Boolean? = null,
-    val isWon: Boolean? = null
+    val hasWon: Boolean? = null
 )
 
 data class Cell(

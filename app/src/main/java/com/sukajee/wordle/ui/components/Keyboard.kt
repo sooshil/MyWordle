@@ -24,9 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.sukajee.wordle.ui.screens.mainscreen.FIRST_ROW_CHARACTERS
-import com.sukajee.wordle.ui.screens.mainscreen.SECOND_ROW_CHARACTERS
-import com.sukajee.wordle.ui.screens.mainscreen.THIRD_ROW_CHARACTERS
+import com.sukajee.wordle.ui.KeyState
 
 @Composable
 fun Keyboard(
@@ -105,11 +103,7 @@ fun Keyboard(
                     Box(
                         modifier = Modifier
                             .size(
-                                width = if (char
-                                        .isBackSpace()
-                                        .not()
-                                )
-                                    thirdRowKeyWidth
+                                width = if (char.isBackSpace().not()) thirdRowKeyWidth
                                 else thirdRowKeyWidth * 1.25f,
                                 height = firstRowKeyWidth * 1.25f
                             )
@@ -121,11 +115,7 @@ fun Keyboard(
                             .clip(RoundedCornerShape(4.dp))
                             .background(Color.DarkGray)
                             .clickable {
-                                if (char
-                                        .isBackSpace()
-                                        .not()
-                                )
-                                    onKey(char)
+                                if (char.isBackSpace().not()) onKey(char)
                                 else onBackSpace()
                             },
                         contentAlignment = Alignment.Center
@@ -142,5 +132,9 @@ fun Keyboard(
         }
     }
 }
+
+const val FIRST_ROW_CHARACTERS = "QWERTYUIOP"
+const val SECOND_ROW_CHARACTERS = "ASDFGHJKL"
+const val THIRD_ROW_CHARACTERS = "ZXCVBNM⌫"
 
 private fun Char.isBackSpace() = this == '⌫'

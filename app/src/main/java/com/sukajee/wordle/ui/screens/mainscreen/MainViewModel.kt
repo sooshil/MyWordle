@@ -6,6 +6,7 @@ import com.sukajee.wordle.repository.BaseRepository
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.CellType
 import com.sukajee.wordle.ui.GameUiState
+import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
@@ -30,6 +31,11 @@ class MainViewModel @Inject constructor(
 
     private var _currentWord = MutableStateFlow("")
     val currentWord = _currentWord.asStateFlow()
+
+    private val _keyState = MutableStateFlow(KeyState())
+    val keyState = _keyState.asStateFlow()
+
+
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -124,7 +130,7 @@ class MainViewModel @Inject constructor(
                 currentState.copy(
                     grid = grid,
                     isGameOver = true,
-                    isWon = enteredWord == currentWord.value
+                    hasWon = enteredWord == currentWord.value
                 )
             } else {
                 currentState.copy(
@@ -167,7 +173,7 @@ class MainViewModel @Inject constructor(
                 grid = resetGrid(),
                 currentGridIndex = Pair(0, 0),
                 isGameOver = null,
-                isWon = null
+                hasWon = null
             )
         }
     }
