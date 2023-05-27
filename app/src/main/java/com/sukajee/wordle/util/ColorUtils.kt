@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.Color.Companion.Yellow
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.CellType
+import com.sukajee.wordle.ui.components.KeyColorsType
 
 @Composable
 fun getCharColor(cell: Cell): Color =
@@ -39,4 +40,12 @@ fun getBorderColor(cell: Cell): Color =
         CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
         CellType.EmptyCell -> MaterialTheme.colorScheme.onSurface
         CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFF616161) else Color(0xFF808080)
+    }
+
+@Composable
+fun getKeyColor(type: KeyColorsType): Color =
+    when (type) {
+        KeyColorsType.GREEN -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
+        KeyColorsType.RED -> if(isSystemInDarkTheme()) Color(0xFF801E40) else Color(0xFFC25477)
+        KeyColorsType.ORANGE -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
     }

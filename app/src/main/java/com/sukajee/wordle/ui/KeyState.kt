@@ -1,8 +1,7 @@
 package com.sukajee.wordle.ui
 
-import androidx.compose.ui.graphics.Color
-
-data class KeyState(
-    val char: Char = ' ',
-    val keyColor: Color = Color.DarkGray
+data class KeyState (
+    val redKeyList: MutableList<Char> = mutableListOf(),
+    val orangeKeyList: MutableList<Char> = mutableListOf(),
+    val greenKeyList: MutableList<Char> = mutableListOf()
 )

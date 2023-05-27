@@ -25,9 +25,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.sukajee.wordle.ui.KeyState
+import com.sukajee.wordle.util.getKeyColor
 
 @Composable
 fun Keyboard(
+    keyState: KeyState,
     onKey: (Char) -> Unit,
     onBackSpace: () -> Unit
 ) {
@@ -45,22 +47,22 @@ fun Keyboard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                FIRST_ROW_CHARACTERS.forEach {
+                FIRST_ROW_CHARACTERS.forEach { char ->
                     Box(
                         modifier = Modifier
                             .size(width = firstRowKeyWidth, height = firstRowKeyWidth * 1.25f)
                             .border(
                                 width = 1.dp,
                                 shape = RoundedCornerShape(4.dp),
-                                color = Color.DarkGray,
+                                color = getColor(char, keyState)
                             )
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.DarkGray)
-                            .clickable { onKey(it) },
+                            .background(getColor(char, keyState))
+                            .clickable { onKey(char) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = it.toString(),
+                            text = char.toString(),
                             color = Color.White,
                             style = MaterialTheme.typography.bodyLarge
                         )
@@ -72,22 +74,22 @@ fun Keyboard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                SECOND_ROW_CHARACTERS.forEach {
+                SECOND_ROW_CHARACTERS.forEach { char ->
                     Box(
                         modifier = Modifier
                             .size(width = secondRowKeyWidth, height = firstRowKeyWidth * 1.25f)
                             .border(
                                 width = 1.dp,
                                 shape = RoundedCornerShape(4.dp),
-                                color = Color.DarkGray,
+                                color = getColor(char, keyState),
                             )
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.DarkGray)
-                            .clickable { onKey(it) },
+                            .background(getColor(char, keyState))
+                            .clickable { onKey(char) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = it.toString(),
+                            text = char.toString(),
                             color = Color.White,
                             style = MaterialTheme.typography.bodyLarge
                         )
@@ -103,19 +105,25 @@ fun Keyboard(
                     Box(
                         modifier = Modifier
                             .size(
-                                width = if (char.isBackSpace().not()) thirdRowKeyWidth
+                                width = if (char
+                                        .isBackSpace()
+                                        .not()
+                                ) thirdRowKeyWidth
                                 else thirdRowKeyWidth * 1.25f,
                                 height = firstRowKeyWidth * 1.25f
                             )
                             .border(
                                 width = 1.dp,
                                 shape = RoundedCornerShape(4.dp),
-                                color = Color.DarkGray,
+                                color = getColor(char, keyState),
                             )
                             .clip(RoundedCornerShape(4.dp))
-                            .background(Color.DarkGray)
+                            .background(getColor(char, keyState))
                             .clickable {
-                                if (char.isBackSpace().not()) onKey(char)
+                                if (char
+                                        .isBackSpace()
+                                        .not()
+                                ) onKey(char)
                                 else onBackSpace()
                             },
                         contentAlignment = Alignment.Center
@@ -133,8 +141,23 @@ fun Keyboard(
     }
 }
 
+@Composable
+private fun getColor(
+    char: Char,
+    keyState: KeyState
+) = when {
+    keyState.redKeyList.contains(char) -> getKeyColor(type = KeyColorsType.RED)
+    keyState.orangeKeyList.contains(char) -> getKeyColor(type = KeyColorsType.ORANGE)
+    keyState.greenKeyList.contains(char) -> getKeyColor(type = KeyColorsType.GREEN)
+    else -> Color.DarkGray
+}
+
 const val FIRST_ROW_CHARACTERS = "QWERTYUIOP"
 const val SECOND_ROW_CHARACTERS = "ASDFGHJKL"
 const val THIRD_ROW_CHARACTERS = "ZXCVBNM⌫"
 
 private fun Char.isBackSpace() = this == '⌫'
+
+enum class KeyColorsType {
+    RED, ORANGE, GREEN
+}

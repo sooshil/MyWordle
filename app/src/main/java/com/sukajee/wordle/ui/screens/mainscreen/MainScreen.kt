@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.sukajee.wordle.R
 import com.sukajee.wordle.ui.Cell
+import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
@@ -64,7 +65,8 @@ fun MainScreen(
     StateLessMainScreen(
         currentWord = currentWord,
         state = state,
-        onEvent = { viewModel.onEvent(it) }
+        onEvent = { viewModel.onEvent(it) },
+        keyState = keyState
     )
 }
 
@@ -73,6 +75,7 @@ fun MainScreen(
 fun StateLessMainScreen(
     currentWord: String,
     state: GameUiState,
+    keyState: KeyState,
     onEvent: (WordleEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -96,7 +99,7 @@ fun StateLessMainScreen(
                             id = R.string.word_not_found_message,
                             it.enteredWord
                         ),
-                        positiveButtonText = stringResource(id = R.string.ok),
+                        positiveButtonText = stringResource(id = R.string.yes),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
@@ -116,7 +119,7 @@ fun StateLessMainScreen(
                     CustomDialog(
                         title = stringResource(id = if (won) R.string.you_won else R.string.you_lost),
                         message = stringResource(id = R.string.start_new_game),
-                        positiveButtonText = stringResource(id = R.string.ok),
+                        positiveButtonText = stringResource(id = R.string.yes),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
@@ -133,12 +136,14 @@ fun StateLessMainScreen(
             PortraitMainScreen(
                 padding = padding,
                 state = state,
+                keyState = keyState,
                 onEvent = onEvent
             )
         } else {
             PortraitMainScreen(
                 padding = padding,
                 state = state,
+                keyState = keyState,
                 onEvent = onEvent
             )
         }
@@ -149,6 +154,7 @@ fun StateLessMainScreen(
 fun PortraitMainScreen(
     padding: PaddingValues,
     state: GameUiState,
+    keyState: KeyState,
     onEvent: (WordleEvent) -> Unit
 ) {
     Column(
@@ -195,6 +201,7 @@ fun PortraitMainScreen(
         }
         Spacer(modifier = Modifier.weight(1f))
         Keyboard(
+            keyState = keyState,
             onKey = { onEvent(WordleEvent.OnKey(it)) },
             onBackSpace = { onEvent(WordleEvent.OnBackSpace) }
         )
@@ -237,6 +244,7 @@ fun MainScreenPreview() {
             ),
             currentGridIndex = Pair(0, 0)
         ),
-        onEvent = {}
+        onEvent = {},
+        keyState = KeyState()
     )
 }

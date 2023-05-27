@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.sukajee.wordle.repository.BaseRepository
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.CellType
-import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.ui.KeyState
+import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
@@ -34,7 +34,6 @@ class MainViewModel @Inject constructor(
 
     private val _keyState = MutableStateFlow(KeyState())
     val keyState = _keyState.asStateFlow()
-
 
 
     private val _uiEvent = Channel<UiEvent>()
@@ -114,16 +113,42 @@ class MainViewModel @Inject constructor(
                         char = c,
                         cellType = CellType.CorrectCharCorrectPosition
                     )
+                    _keyState.update { currentState ->
+                        currentState.orangeKeyList.remove(c)
+                        currentState.redKeyList.remove(c)
+                        currentState.greenKeyList.add(c)
+
+                        currentState.copy(
+                            greenKeyList = currentState.greenKeyList
+                        )
+                    }
                 } else if (_currentWord.value.contains(c)) {
                     grid[currentRow][index] = Cell(
                         char = c,
                         cellType = CellType.CorrectCharWrongPosition
                     )
+                    _keyState.update { currentState ->
+                        currentState.redKeyList.remove(c)
+                        if (currentState.greenKeyList.contains(c)
+                                .not()
+                        ) currentState.orangeKeyList.add(c)
+                        currentState.copy(
+                            orangeKeyList = currentState.orangeKeyList
+                        )
+                    }
                 } else {
                     grid[currentRow][index] = Cell(
                         char = c,
                         cellType = CellType.WrongCharWrongPosition
                     )
+                    _keyState.update { currentState ->
+                        if (currentState.greenKeyList.contains(c)
+                                .not() && currentState.orangeKeyList.contains(c).not()
+                        ) currentState.redKeyList.add(c)
+                        currentState.copy(
+                            redKeyList = currentState.redKeyList
+                        )
+                    }
                 }
             }
             if (enteredWord == currentWord.value || currentRow == 5) {
@@ -159,6 +184,7 @@ class MainViewModel @Inject constructor(
                             )
                         }
                     }
+
                     ButtonType.NEGATIVE -> {}
                 }
             }
@@ -174,6 +200,13 @@ class MainViewModel @Inject constructor(
                 currentGridIndex = Pair(0, 0),
                 isGameOver = null,
                 hasWon = null
+            )
+        }
+        _keyState.update { currentState ->
+            currentState.copy(
+                redKeyList = mutableListOf(),
+                orangeKeyList = mutableListOf(),
+                greenKeyList = mutableListOf()
             )
         }
     }
