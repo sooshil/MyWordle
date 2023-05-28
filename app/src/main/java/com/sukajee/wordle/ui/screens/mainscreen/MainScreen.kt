@@ -3,10 +3,10 @@ package com.sukajee.wordle.ui.screens.mainscreen
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -26,39 +27,46 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.sukajee.wordle.ui.previews.FontScalePreviews
+import com.sukajee.wordle.R
+import com.sukajee.wordle.ui.Cell
+import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.GameUiState
-import com.sukajee.wordle.ui.previews.OrientationPreviews
+import com.sukajee.wordle.ui.components.CustomDialog
+import com.sukajee.wordle.ui.components.Keyboard
 import com.sukajee.wordle.ui.components.TopBar
+import com.sukajee.wordle.ui.previews.FontScalePreviews
+import com.sukajee.wordle.ui.previews.OrientationPreviews
+import com.sukajee.wordle.util.ButtonType
+import com.sukajee.wordle.util.DialogType
+import com.sukajee.wordle.util.ErrorType
+import com.sukajee.wordle.util.WordleEvent
+import com.sukajee.wordle.util.getBorderColor
+import com.sukajee.wordle.util.getCellColor
+import com.sukajee.wordle.util.getCharColor
 import com.sukajee.wordle.R.string as strings
-
-const val FIRST_ROW_CHARACTERS = "QWERTYUIOP"
-const val SECOND_ROW_CHARACTERS = "ASDFGHJKL"
-const val THIRD_ROW_CHARACTERS = "ZXCVBNM⌫"
 
 @Composable
 fun MainScreen(
     viewModel: MainViewModel
 ) {
     val state by viewModel.gameState.collectAsState()
+    val keyState by viewModel.keyState.collectAsState()
     val currentWord by viewModel.currentWord.collectAsState()
+    rememberCoroutineScope()
+
     StateLessMainScreen(
         currentWord = currentWord,
         state = state,
-        onKey = { viewModel.onKey(it) },
-        onBackSpace = { viewModel.onBackSpace() },
-        onSubmitClick = { viewModel.onSubmit() },
-        onHintClick = { viewModel.onHint() }
+        onEvent = { viewModel.onEvent(it) },
+        keyState = keyState
     )
 }
 
@@ -67,16 +75,14 @@ fun MainScreen(
 fun StateLessMainScreen(
     currentWord: String,
     state: GameUiState,
-    onKey: (Char) -> Unit,
-    onBackSpace: () -> Unit,
-    onSubmitClick: () -> Unit,
-    onHintClick: () -> Unit,
+    keyState: KeyState,
+    onEvent: (WordleEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
     Scaffold(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize(),
         topBar = {
             TopBar(title = currentWord) //stringResource(id = strings.app_name))
@@ -84,16 +90,62 @@ fun StateLessMainScreen(
     ) { padding ->
         if (portrait) {
             Spacer(modifier = Modifier.height(32.dp))
+
+            state.error?.let {
+                when (it) {
+                    is ErrorType.WordNotFound -> CustomDialog(
+                        title = stringResource(id = R.string.word_not_found_title),
+                        message = stringResource(
+                            id = R.string.word_not_found_message,
+                            it.enteredWord
+                        ),
+                        positiveButtonText = stringResource(id = R.string.yes),
+                        onPositiveButtonClick = {
+                            onEvent(
+                                WordleEvent.OnDialogButtonClick(
+                                    dialogType = DialogType.ERROR_DIALOG,
+                                    buttonType = ButtonType.POSITIVE
+                                )
+                            )
+                        },
+                        onDismiss = { }
+                    )
+                }
+            }
+
+            state.isGameOver?.let {
+                if (it) {
+                    val won = state.hasWon ?: false
+                    CustomDialog(
+                        title = stringResource(id = if (won) R.string.you_won else R.string.you_lost),
+                        message = stringResource(id = R.string.start_new_game),
+                        positiveButtonText = stringResource(id = R.string.yes),
+                        onPositiveButtonClick = {
+                            onEvent(
+                                WordleEvent.OnDialogButtonClick(
+                                    buttonType = ButtonType.POSITIVE,
+                                    dialogType = DialogType.GAME_OVER_DIALOG
+                                )
+                            )
+                        },
+                        onDismiss = { }
+                    )
+                }
+            }
+
             PortraitMainScreen(
                 padding = padding,
                 state = state,
-                onKey = onKey,
-                onBackSpace = onBackSpace,
-                onSubmitClick = onSubmitClick,
-                onHintClick = onHintClick
+                keyState = keyState,
+                onEvent = onEvent
             )
         } else {
-            LandscapeMainScreen(padding)
+            PortraitMainScreen(
+                padding = padding,
+                state = state,
+                keyState = keyState,
+                onEvent = onEvent
+            )
         }
     }
 }
@@ -102,17 +154,18 @@ fun StateLessMainScreen(
 fun PortraitMainScreen(
     padding: PaddingValues,
     state: GameUiState,
-    onKey: (Char) -> Unit,
-    onBackSpace: () -> Unit,
-    onHintClick: () -> Unit,
-    onSubmitClick: () -> Unit
+    keyState: KeyState,
+    onEvent: (WordleEvent) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding),
-        horizontalAlignment = CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+            .padding(padding)
+            .scrollable(
+                state = rememberScrollState(),
+                orientation = Orientation.Vertical
+            ),
+        horizontalAlignment = CenterHorizontally
     ) {
         Column {
             Spacer(modifier = Modifier.height(56.dp))
@@ -121,19 +174,23 @@ fun PortraitMainScreen(
                 Row {
                     repeat(5) { eachColumn ->
                         Spacer(modifier = Modifier.width(5.dp))
+                        val cell = state.grid[eachRow][eachColumn]
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
+                                .clip(RoundedCornerShape(5.dp))
+                                .background(getCellColor(cell = cell))
                                 .border(
                                     width = 1.dp,
                                     shape = RoundedCornerShape(5.dp),
-                                    color = Color.DarkGray
+                                    color = getBorderColor(cell = cell)
                                 ),
                             contentAlignment = Center
                         ) {
                             Text(
-                                text = (state.grid[eachRow][eachColumn]).toString(),
-                                style = MaterialTheme.typography.bodyLarge
+                                text = (state.grid[eachRow][eachColumn].char).toString(),
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = getCharColor(cell = cell)
                             )
                         }
                         Spacer(modifier = Modifier.width(5.dp))
@@ -142,28 +199,28 @@ fun PortraitMainScreen(
                 Spacer(modifier = Modifier.height(5.dp))
             }
         }
-        Column {
-            Keyboard(
-                onKey = onKey,
-                onBackSpace = onBackSpace
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+        Spacer(modifier = Modifier.weight(1f))
+        Keyboard(
+            keyState = keyState,
+            onKey = { onEvent(WordleEvent.OnKey(it)) },
+            onBackSpace = { onEvent(WordleEvent.OnBackSpace) }
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                onClick = { onEvent(WordleEvent.OnHint) }
             ) {
-                Button(
-                    onClick = onHintClick
-                ) {
-                    Text(text = stringResource(id = strings.hint))
-                }
-                Button(
-                    onClick = onSubmitClick
-                ) {
-                    Text(text = stringResource(id = strings.check))
-                }
+                Text(text = stringResource(id = strings.hint))
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Button(
+                onClick = { onEvent(WordleEvent.OnSubmit) }
+            ) {
+                Text(text = stringResource(id = strings.check))
+            }
         }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -171,123 +228,6 @@ fun PortraitMainScreen(
 fun LandscapeMainScreen(padding: PaddingValues) {
 
 }
-
-@Composable
-fun Keyboard(
-    onKey: (Char) -> Unit,
-    onBackSpace: () -> Unit
-) {
-    BoxWithConstraints(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Center
-    ) {
-        val firstRowKeyWidth by remember { mutableStateOf(this.maxWidth / 10 - 4.dp) }
-        val secondRowKeyWidth by remember { mutableStateOf(this.maxWidth / 9 - 4.dp) }
-        val thirdRowKeyWidth by remember { mutableStateOf(this.maxWidth / 8 - 6.dp) }
-        Column(
-            horizontalAlignment = CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                FIRST_ROW_CHARACTERS.forEach {
-                    Box(
-                        modifier = Modifier
-                            .size(width = firstRowKeyWidth, height = firstRowKeyWidth * 1.25f)
-                            .border(
-                                width = 1.dp,
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color.DarkGray,
-                            )
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.DarkGray)
-                            .clickable { onKey(it) },
-                        contentAlignment = Center
-                    ) {
-                        Text(
-                            text = it.toString(),
-                            color = Color.White,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                SECOND_ROW_CHARACTERS.forEach {
-                    Box(
-                        modifier = Modifier
-                            .size(width = secondRowKeyWidth, height = firstRowKeyWidth * 1.25f)
-                            .border(
-                                width = 1.dp,
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color.DarkGray,
-                            )
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.DarkGray)
-                            .clickable { onKey(it) },
-                        contentAlignment = Center
-                    ) {
-                        Text(
-                            text = it.toString(),
-                            color = Color.White,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                THIRD_ROW_CHARACTERS.forEach { char ->
-                    Box(
-                        modifier = Modifier
-                            .size(
-                                width = if (char
-                                        .isBackSpace()
-                                        .not()
-                                )
-                                    thirdRowKeyWidth
-                                else thirdRowKeyWidth * 1.25f,
-                                height = firstRowKeyWidth * 1.25f
-                            )
-                            .border(
-                                width = 1.dp,
-                                shape = RoundedCornerShape(4.dp),
-                                color = Color.DarkGray,
-                            )
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(Color.DarkGray)
-                            .clickable {
-                                if (char
-                                        .isBackSpace()
-                                        .not()
-                                )
-                                    onKey(char)
-                                else onBackSpace()
-                            },
-                        contentAlignment = Center
-                    ) {
-                        Text(
-                            text = char.toString(),
-                            color = Color.White,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-    }
-}
-
-private fun Char.isBackSpace() = this == '⌫'
 
 @FontScalePreviews
 @OrientationPreviews
@@ -297,18 +237,14 @@ fun MainScreenPreview() {
         currentWord = "OTHER",
         state = GameUiState(
             grid = mutableListOf(
-                mutableListOf('A', 'B', 'C', 'D', 'E'),
-                mutableListOf('H', 'P', 'U', 'M', 'F'),
-                mutableListOf('T', 'S', 'X', 'Z', 'W'),
-                mutableListOf('U', 'R', 'M', 'L', 'G'),
-                mutableListOf('V', 'Q', 'N', 'K', 'H'),
-                mutableListOf('W', 'P', 'O', 'Z', 'I')
+                mutableListOf(Cell('A'), Cell('B'), Cell('C'), Cell('D'), Cell('E')),
+                mutableListOf(Cell('B'), Cell('G'), Cell('H'), Cell('M'), Cell('N')),
+                mutableListOf(Cell('C'), Cell('F'), Cell('I'), Cell('L'), Cell('O')),
+                mutableListOf(Cell('D'), Cell('E'), Cell('J'), Cell('K'), Cell('P')),
             ),
             currentGridIndex = Pair(0, 0)
         ),
-        onBackSpace = {},
-        onKey = {},
-        onSubmitClick = {},
-        onHintClick = {}
+        onEvent = {},
+        keyState = KeyState()
     )
 }
