@@ -27,8 +27,8 @@ fun getCharColor(cell: Cell): Color =
 @Composable
 fun getCellColor(cell: Cell): Color =
     when (cell.cellType) {
-        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
-        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
+        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) Color(0xFF208602) else Color(0xFF2CB803)
+        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFA37502) else Color(0xFFB68610)
         CellType.EmptyCell -> Color.Transparent
         CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFF616161) else Color(0xFF808080)
     }
@@ -36,8 +36,8 @@ fun getCellColor(cell: Cell): Color =
 @Composable
 fun getBorderColor(cell: Cell): Color =
     when (cell.cellType) {
-        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
-        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
+        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) Color(0xFF208602) else Color(0xFF2CB803)
+        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFA37502) else Color(0xFFB68610)
         CellType.EmptyCell -> MaterialTheme.colorScheme.onSurface
         CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFF616161) else Color(0xFF808080)
     }
@@ -45,7 +45,7 @@ fun getBorderColor(cell: Cell): Color =
 @Composable
 fun getKeyColor(type: KeyColorsType): Color =
     when (type) {
-        KeyColorsType.GREEN -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
-        KeyColorsType.RED -> if(isSystemInDarkTheme()) Color(0xFF801E40) else Color(0xFFC25477)
-        KeyColorsType.ORANGE -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
+        KeyColorsType.GREEN -> if(isSystemInDarkTheme()) Color(0xFF208602) else Color(0xFF2CB803)
+        KeyColorsType.RED -> if(isSystemInDarkTheme()) Color(0xFF751212) else Color(0xFFA72121)
+        KeyColorsType.ORANGE -> if(isSystemInDarkTheme()) Color(0xFFA37502) else Color(0xFFB68610)
     }

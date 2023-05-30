@@ -1,5 +1,6 @@
 package com.sukajee.wordle.ui.screens.mainscreen
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sukajee.wordle.repository.BaseRepository
@@ -20,6 +21,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.sign
+
+private const val TAG = "MainViewModel"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
@@ -40,6 +44,7 @@ class MainViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private var currentRow = 0
+    private var usedCharCount = 0
     private var wordList: List<String> = emptyList()
     private var allWords: List<String> = emptyList()
     private var usedWords: List<String> = emptyList()
@@ -117,16 +122,51 @@ class MainViewModel @Inject constructor(
                         currentState.orangeKeyList.remove(c)
                         currentState.redKeyList.remove(c)
                         currentState.greenKeyList.add(c)
-
                         currentState.copy(
                             greenKeyList = currentState.greenKeyList
                         )
                     }
                 } else if (_currentWord.value.contains(c)) {
-                    grid[currentRow][index] = Cell(
-                        char = c,
-                        cellType = CellType.CorrectCharWrongPosition
-                    )
+                    if (enteredWord.count { it == c } <= 1) {
+                        grid[currentRow][index] = Cell(
+                            char = c,
+                            cellType = CellType.CorrectCharWrongPosition
+                        )
+                    } else {
+                        /**
+                         * This case would be very rare.
+                         * Example: Word -> HARRY
+                         * and user for examples enters RRARY or RRAHY or RARHY or similar..
+                         * then the correct character wrong position must be highlighted correctly
+                         * and logically.
+                         */
+
+                        val charPositionsInCurrentWord = getCharIndices(_currentWord.value, c)
+                        val charPositionsInEnteredWord = getCharIndices(enteredWord, c)
+                        val diff = charPositionsInCurrentWord.minus(charPositionsInEnteredWord.toSet()) // [1, 3]
+
+                        if(usedCharCount >= diff.size) {
+                            grid[currentRow][index] = Cell(
+                                char = c,
+                                cellType = CellType.WrongCharWrongPosition
+                            )
+                        } else {
+                            when (diff.size) {
+                                0 -> grid[currentRow][index] = Cell(
+                                    char = c,
+                                    cellType = CellType.WrongCharWrongPosition
+                                )
+
+                                else -> {
+                                    grid[currentRow][charPositionsInEnteredWord[usedCharCount]] = Cell(
+                                        char = c,
+                                        cellType = CellType.CorrectCharWrongPosition
+                                    )
+                                    usedCharCount++
+                                }
+                            }
+                        }
+                    }
                     _keyState.update { currentState ->
                         currentState.redKeyList.remove(c)
                         if (currentState.greenKeyList.contains(c)
@@ -142,8 +182,8 @@ class MainViewModel @Inject constructor(
                         cellType = CellType.WrongCharWrongPosition
                     )
                     _keyState.update { currentState ->
-                        if (currentState.greenKeyList.contains(c)
-                                .not() && currentState.orangeKeyList.contains(c).not()
+                        if (currentState.greenKeyList.contains(c).not()
+                            && currentState.orangeKeyList.contains(c).not()
                         ) currentState.redKeyList.add(c)
                         currentState.copy(
                             redKeyList = currentState.redKeyList
@@ -151,6 +191,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
+            usedCharCount = 0
             if (enteredWord == currentWord.value || currentRow == 5) {
                 currentState.copy(
                     grid = grid,
@@ -204,9 +245,9 @@ class MainViewModel @Inject constructor(
         }
         _keyState.update { currentState ->
             currentState.copy(
-                redKeyList = mutableListOf(),
-                orangeKeyList = mutableListOf(),
-                greenKeyList = mutableListOf()
+                redKeyList = mutableSetOf(),
+                orangeKeyList = mutableSetOf(),
+                greenKeyList = mutableSetOf()
             )
         }
     }
@@ -226,5 +267,13 @@ class MainViewModel @Inject constructor(
     private fun getWord() = wordList.let {
         if (it.isNotEmpty()) it.random()
         else ""
+    }
+
+    private fun getCharIndices(word: String, char: Char): List<Int> {
+        val indices = mutableListOf<Int>()
+        for (i in word.indices) {
+            if (word[i] == char) indices.add(i)
+        }
+        return indices
     }
 }
