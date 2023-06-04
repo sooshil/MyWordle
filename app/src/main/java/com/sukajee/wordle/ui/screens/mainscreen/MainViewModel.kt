@@ -1,13 +1,12 @@
 package com.sukajee.wordle.ui.screens.mainscreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sukajee.wordle.repository.BaseRepository
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.CellType
-import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.GameUiState
+import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
@@ -21,7 +20,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.sign
 
 private const val TAG = "MainViewModel"
 
