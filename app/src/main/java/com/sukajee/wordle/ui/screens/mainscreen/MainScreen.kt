@@ -3,6 +3,7 @@ package com.sukajee.wordle.ui.screens.mainscreen
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +28,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -81,11 +85,19 @@ fun StateLessMainScreen(
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    var shouldShowWord by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
         topBar = {
-            TopBar(title = currentWord) //stringResource(id = strings.app_name))
+            TopBar(
+                modifier = Modifier.clickable {
+                    shouldShowWord = !shouldShowWord
+                },
+                title = if (shouldShowWord) currentWord else stringResource(id = strings.app_name)
+            )
         }
     ) { padding ->
         if (portrait) {

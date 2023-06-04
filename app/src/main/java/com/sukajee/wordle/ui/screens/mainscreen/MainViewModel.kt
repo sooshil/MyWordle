@@ -39,12 +39,11 @@ class MainViewModel @Inject constructor(
     private val _keyState = MutableStateFlow(KeyState())
     val keyState = _keyState.asStateFlow()
 
-
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private var currentRow = 0
-    private var usedCharCount = 0
+    private var usedCharData = mutableMapOf<Char, Int>()
     private var wordList: List<String> = emptyList()
     private var allWords: List<String> = emptyList()
     private var usedWords: List<String> = emptyList()
@@ -56,44 +55,6 @@ class MainViewModel @Inject constructor(
         }
         viewModelScope.launch {
             allWords = repository.getAllWords()
-        }
-    }
-
-    fun onEvent(event: WordleEvent) {
-        when (event) {
-            is WordleEvent.OnKey -> onKey(event.key)
-            is WordleEvent.OnSubmit -> onSubmit()
-            is WordleEvent.OnHint -> onHint()
-            is WordleEvent.OnBackSpace -> onBackSpace()
-            is WordleEvent.OnDialogButtonClick -> onDialogButtonClick(event)
-        }
-    }
-
-    private fun onKey(key: Char) {
-        _gameState.update { currentState ->
-            val row = currentState.currentGridIndex.first
-            val column = currentState.currentGridIndex.second
-            if (column > 4 || row > 5) return
-            val grid = currentState.grid
-            grid[row][column] = Cell(key)
-            currentState.copy(
-                grid = grid,
-                currentGridIndex = Pair(row, column + 1)
-            )
-        }
-    }
-
-    private fun onBackSpace() {
-        _gameState.update { currentState ->
-            val row = currentState.currentGridIndex.first
-            val column = currentState.currentGridIndex.second - 1
-            if (column < 0 || row < 0) return
-            val grid = currentState.grid
-            grid[row][column] = Cell(' ')
-            currentState.copy(
-                grid = grid,
-                currentGridIndex = Pair(row, column),
-            )
         }
     }
 
@@ -110,6 +71,10 @@ class MainViewModel @Inject constructor(
             }
             return
         }
+        updateGameState(enteredWord)
+    }
+
+    private fun updateGameState(enteredWord: String) {
         _gameState.update { currentState ->
             val grid = currentState.grid
             enteredWord.forEachIndexed { index, c ->
@@ -127,42 +92,40 @@ class MainViewModel @Inject constructor(
                         )
                     }
                 } else if (_currentWord.value.contains(c)) {
-                    if (enteredWord.count { it == c } <= 1) {
+                    if (enteredWord.count { it == c } == 1) {
                         grid[currentRow][index] = Cell(
                             char = c,
                             cellType = CellType.CorrectCharWrongPosition
                         )
                     } else {
-                        /**
-                         * This case would be very rare.
-                         * Example: Word -> HARRY
-                         * and user for examples enters RRARY or RRAHY or RARHY or similar..
-                         * then the correct character wrong position must be highlighted correctly
-                         * and logically.
-                         */
+                        val charPositionsInCurrentWord =
+                            getCharIndices(_currentWord.value, c)
+                        val charPositionsInEnteredWord =
+                            getCharIndices(enteredWord, c)
+                        val diff =
+                            charPositionsInCurrentWord.minus(charPositionsInEnteredWord.toSet())
 
-                        val charPositionsInCurrentWord = getCharIndices(_currentWord.value, c)
-                        val charPositionsInEnteredWord = getCharIndices(enteredWord, c)
-                        val diff = charPositionsInCurrentWord.minus(charPositionsInEnteredWord.toSet()) // [1, 3]
-
-                        if(usedCharCount >= diff.size) {
+                        if ((usedCharData[c] ?: 0) >= diff.size) {
                             grid[currentRow][index] = Cell(
                                 char = c,
                                 cellType = CellType.WrongCharWrongPosition
                             )
                         } else {
                             when (diff.size) {
-                                0 -> grid[currentRow][index] = Cell(
-                                    char = c,
-                                    cellType = CellType.WrongCharWrongPosition
-                                )
+                                0 -> {
+                                    grid[currentRow][index] = Cell(
+                                        char = c,
+                                        cellType = CellType.WrongCharWrongPosition
+                                    )
+                                }
 
                                 else -> {
-                                    grid[currentRow][charPositionsInEnteredWord[usedCharCount]] = Cell(
-                                        char = c,
-                                        cellType = CellType.CorrectCharWrongPosition
-                                    )
-                                    usedCharCount++
+                                    grid[currentRow][index] =
+                                        Cell(
+                                            char = c,
+                                            cellType = CellType.CorrectCharWrongPosition
+                                        )
+                                    usedCharData[c] = (usedCharData[c] ?: 0) + 1
                                 }
                             }
                         }
@@ -191,7 +154,7 @@ class MainViewModel @Inject constructor(
                     }
                 }
             }
-            usedCharCount = 0
+            usedCharData = mutableMapOf()
             if (enteredWord == currentWord.value || currentRow == 5) {
                 currentState.copy(
                     grid = grid,
@@ -204,6 +167,34 @@ class MainViewModel @Inject constructor(
                     currentGridIndex = Pair(++currentRow, 0)
                 )
             }
+        }
+    }
+
+    private fun onKey(key: Char) {
+        _gameState.update { currentState ->
+            val row = currentState.currentGridIndex.first
+            val column = currentState.currentGridIndex.second
+            if (column > 4 || row > 5) return
+            val grid = currentState.grid
+            grid[row][column] = Cell(key)
+            currentState.copy(
+                grid = grid,
+                currentGridIndex = Pair(row, column + 1)
+            )
+        }
+    }
+
+    private fun onBackSpace() {
+        _gameState.update { currentState ->
+            val row = currentState.currentGridIndex.first
+            val column = currentState.currentGridIndex.second - 1
+            if (column < 0 || row < 0) return
+            val grid = currentState.grid
+            grid[row][column] = Cell(' ')
+            currentState.copy(
+                grid = grid,
+                currentGridIndex = Pair(row, column),
+            )
         }
     }
 
@@ -263,6 +254,16 @@ class MainViewModel @Inject constructor(
     }
 
     private fun String.isDictionaryWord() = allWords.contains(this)
+
+    fun onEvent(event: WordleEvent) {
+        when (event) {
+            is WordleEvent.OnKey -> onKey(event.key)
+            is WordleEvent.OnSubmit -> onSubmit()
+            is WordleEvent.OnHint -> onHint()
+            is WordleEvent.OnBackSpace -> onBackSpace()
+            is WordleEvent.OnDialogButtonClick -> onDialogButtonClick(event)
+        }
+    }
 
     private fun getWord() = wordList.let {
         if (it.isNotEmpty()) it.random()
