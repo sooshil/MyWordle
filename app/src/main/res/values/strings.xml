@@ -1,12 +1,16 @@
 <resources>
     <string name="app_name">Wordle</string>
-    <string name="check">Check</string>
+    <string name="check">CHECK</string>
     <string name="hint">Hint</string>
     <string name="word_not_found_title">Word not found</string>
     <string name="word_not_found_message">The entered word: %1$s is not a valid word.</string>
-    <string name="yes">Yes</string>
+    <string name="word_no">Word Number: %1$s</string>
+    <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="ok">OK</string>
+    <string name="retry">RETRY</string>
     <string name="you_won">You won!</string>
     <string name="you_lost">You lost!</string>
     <string name="start_new_game">Start new game?</string>
+    <string name="you_did_not_find_the_word">You did not find the word.</string>
 </resources>

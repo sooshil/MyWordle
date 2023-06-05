@@ -7,7 +7,11 @@ sealed class WordleEvent {
     object OnHint : WordleEvent()
     data class OnKey(val key: Char) : WordleEvent()
     object OnBackSpace : WordleEvent()
-    data class OnDialogButtonClick(val buttonType: ButtonType, val dialogType: DialogType): WordleEvent()
+    data class OnDialogButtonClick(
+        val buttonType: ButtonType,
+        val dialogType: DialogType,
+        val hasWon: Boolean = false
+    ) : WordleEvent()
 }
 
 enum class DialogType {

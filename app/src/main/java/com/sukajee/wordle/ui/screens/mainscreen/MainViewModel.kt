@@ -200,7 +200,7 @@ class MainViewModel @Inject constructor(
         when (event.dialogType) {
             DialogType.GAME_OVER_DIALOG -> {
                 when (event.buttonType) {
-                    ButtonType.POSITIVE -> resetGameState()
+                    ButtonType.POSITIVE -> resetGameState(event.hasWon)
                     ButtonType.NEGATIVE -> {}
                 }
             }
@@ -221,9 +221,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun resetGameState() {
+    private fun resetGameState(hasWon: Boolean) {
         currentRow = 0
-        _currentWord.value = getWord()
+        _currentWord.value = if (hasWon) getWord() else _currentWord.value
         _gameState.update { currentState ->
             currentState.copy(
                 grid = resetGrid(),

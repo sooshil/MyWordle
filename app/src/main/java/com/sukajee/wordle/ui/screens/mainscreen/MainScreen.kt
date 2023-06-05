@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -39,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.R
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.KeyState
@@ -109,9 +111,9 @@ fun StateLessMainScreen(
                         title = stringResource(id = R.string.word_not_found_title),
                         message = stringResource(
                             id = R.string.word_not_found_message,
-                            it.enteredWord
+                            it.enteredWord.trim()
                         ),
-                        positiveButtonText = stringResource(id = R.string.yes),
+                        positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
@@ -130,13 +132,14 @@ fun StateLessMainScreen(
                     val won = state.hasWon ?: false
                     CustomDialog(
                         title = stringResource(id = if (won) R.string.you_won else R.string.you_lost),
-                        message = stringResource(id = R.string.start_new_game),
-                        positiveButtonText = stringResource(id = R.string.yes),
+                        message = stringResource(id = if (won) R.string.start_new_game else R.string.you_did_not_find_the_word),
+                        positiveButtonText = stringResource(id = if (won) R.string.yes else R.string.retry),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
                                     buttonType = ButtonType.POSITIVE,
-                                    dialogType = DialogType.GAME_OVER_DIALOG
+                                    dialogType = DialogType.GAME_OVER_DIALOG,
+                                    hasWon = won
                                 )
                             )
                         },
@@ -173,10 +176,7 @@ fun PortraitMainScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .scrollable(
-                state = rememberScrollState(),
-                orientation = Orientation.Vertical
-            ),
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = CenterHorizontally
     ) {
         Column {
@@ -221,15 +221,15 @@ fun PortraitMainScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(
-                onClick = { onEvent(WordleEvent.OnHint) }
-            ) {
-                Text(text = stringResource(id = strings.hint))
-            }
+//            Button(
+//                onClick = { onEvent(WordleEvent.OnHint) }
+//            ) {
+//                Text(text = stringResource(id = strings.hint))
+//            }
             Button(
                 onClick = { onEvent(WordleEvent.OnSubmit) }
             ) {
-                Text(text = stringResource(id = strings.check))
+                Text(text = stringResource(id = strings.check), fontSize = 16.sp)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
