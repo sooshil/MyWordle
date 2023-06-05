@@ -189,7 +189,7 @@ fun PortraitMainScreen(
                         val cell = state.grid[eachRow][eachColumn]
                         Box(
                             modifier = Modifier
-                                .size(56.dp)
+                                .size(60.dp)
                                 .clip(RoundedCornerShape(5.dp))
                                 .background(getCellColor(cell = cell))
                                 .border(
@@ -201,8 +201,8 @@ fun PortraitMainScreen(
                         ) {
                             Text(
                                 text = (state.grid[eachRow][eachColumn].char).toString(),
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = getCharColor(cell = cell)
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = getCharColor(cell = cell),
                             )
                         }
                         Spacer(modifier = Modifier.width(5.dp))

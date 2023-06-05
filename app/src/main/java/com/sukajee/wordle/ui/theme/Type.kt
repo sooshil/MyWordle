@@ -1,19 +1,33 @@
 package com.sukajee.wordle.ui.theme
 
 import androidx.compose.material3.Typography
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.sukajee.wordle.R
+
+val PathWay = FontFamily(
+    Font(R.font.pathway_extreme, weight = FontWeight.SemiBold),
+    Font(R.font.pathway_extreme_medium, weight = FontWeight.Normal)
+)
 
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = PathWay,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 24.sp,
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = PathWay,
         fontWeight = FontWeight.Normal,
-        fontSize = 20.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        fontSize = 18.sp,
+        platformStyle = PlatformTextStyle(includeFontPadding = false)
     )
     /* Other default text styles to override
     titleLarge = TextStyle(

@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -22,7 +23,11 @@ fun TopBar(
     CenterAlignedTopAppBar(
         modifier = modifier.fillMaxWidth(),
         title = {
-            Text(text = title)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 24.sp
+            )
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = backgroundColor,
