@@ -21,13 +21,13 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = PathWay,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp,
+        fontSize = 20.sp,
         platformStyle = PlatformTextStyle(includeFontPadding = false)
     ),
     bodyMedium = TextStyle(
         fontFamily = PathWay,
         fontWeight = FontWeight.Normal,
-        fontSize = 18.sp,
+        fontSize = 24.sp,
         platformStyle = PlatformTextStyle(includeFontPadding = false)
     )
     /* Other default text styles to override

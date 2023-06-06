@@ -4,8 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,12 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.R
 import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.GameUiState
+import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
 import com.sukajee.wordle.ui.components.TopBar
@@ -95,7 +94,8 @@ fun StateLessMainScreen(
             .fillMaxSize(),
         topBar = {
             TopBar(
-                modifier = Modifier.clickable {
+                modifier = Modifier
+                    .clickable {
                     shouldShowWord = !shouldShowWord
                 },
                 title = if (shouldShowWord) currentWord else stringResource(id = strings.app_name)
@@ -201,8 +201,11 @@ fun PortraitMainScreen(
                         ) {
                             Text(
                                 text = (state.grid[eachRow][eachColumn].char).toString(),
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = getCharColor(cell = cell),
+                                style = TextStyle(
+                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
+                                    fontSize = 34.sp
+                                ),
+                                color = getCharColor(cell = cell)
                             )
                         }
                         Spacer(modifier = Modifier.width(5.dp))
