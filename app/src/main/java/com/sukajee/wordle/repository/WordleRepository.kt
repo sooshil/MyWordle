@@ -2,17 +2,30 @@ package com.sukajee.wordle.repository
 
 import android.content.Context
 import android.util.Log
+import com.sukajee.wordle.db.WordleDao
+import com.sukajee.wordle.model.WordleEntry
+import kotlinx.coroutines.flow.Flow
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
 import java.lang.Exception
+import javax.inject.Inject
 
 private const val TAG = "WordleRepository"
 
-class WordleRepository(private val context: Context) : BaseRepository {
+class WordleRepository @Inject constructor(
+    private val context: Context,
+    private val dao: WordleDao
+) : BaseRepository {
 
-    override suspend fun getAllWords(): List<String> = readFromAsset(context, "allwords.txt")
-    override suspend fun getTopWords(): List<String> = readFromAsset(context, "words.txt")
+    override suspend fun getAllWordsFromAsset(): List<String> =
+        readFromAsset(context, "allwords.txt")
+
+    override suspend fun getTopWordsFromAsset(): List<String> = readFromAsset(context, "words.txt")
+
+    override fun getWord(): Flow<WordleEntry> = dao.getWord()
+
+    override suspend fun insertAllWords(words: List<WordleEntry>) = dao.insertAllWords(words)
 
     private fun readFromAsset(context: Context, fileName: String): List<String> {
         try {

@@ -1,7 +1,9 @@
 package com.sukajee.wordle.ui.screens.mainscreen
 
+import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sukajee.wordle.model.WordleEntry
 import com.sukajee.wordle.repository.BaseRepository
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.CellType
@@ -10,6 +12,7 @@ import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
+import com.sukajee.wordle.util.IS_FIRST_TIME_RUN
 import com.sukajee.wordle.util.UiEvent
 import com.sukajee.wordle.util.WordleEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,7 +28,8 @@ private const val TAG = "MainViewModel"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    repository: BaseRepository
+    private val repository: BaseRepository,
+    sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
     private val _gameState = MutableStateFlow(GameUiState())
@@ -42,17 +46,31 @@ class MainViewModel @Inject constructor(
 
     private var currentRow = 0
     private var usedCharData = mutableMapOf<Char, Int>()
-    private var wordList: List<String> = emptyList()
+
+    //    private var wordList: List<String> = emptyList()
     private var allWords: List<String> = emptyList()
     private var usedWords: List<String> = emptyList()
 
     init {
-        viewModelScope.launch {
-            wordList = repository.getTopWords()
-            _currentWord.value = getWord()
+        val isFirstTimeRun = sharedPreferences.getBoolean(IS_FIRST_TIME_RUN, true)
+        if (isFirstTimeRun) {
+            val wordleEntries = mutableListOf<WordleEntry>()
+            viewModelScope.launch {
+                val words = repository.getTopWordsFromAsset()
+                words.forEach { word ->
+                    wordleEntries.add(
+                        WordleEntry(word = word)
+                    )
+                }
+                repository.insertAllWords(wordleEntries)
+            }
+            sharedPreferences.edit().also {
+                it.putBoolean(IS_FIRST_TIME_RUN, false)
+            }.apply()
         }
+        getNewWord()
         viewModelScope.launch {
-            allWords = repository.getAllWords()
+            allWords = repository.getAllWordsFromAsset()
         }
     }
 
@@ -223,7 +241,7 @@ class MainViewModel @Inject constructor(
 
     private fun resetGameState(hasWon: Boolean) {
         currentRow = 0
-        _currentWord.value = if (hasWon) getWord() else _currentWord.value
+        if (hasWon) getNewWord()
         _gameState.update { currentState ->
             currentState.copy(
                 grid = resetGrid(),
@@ -232,12 +250,14 @@ class MainViewModel @Inject constructor(
                 hasWon = null
             )
         }
-        _keyState.update { currentState ->
-            currentState.copy(
-                redKeyList = mutableSetOf(),
-                orangeKeyList = mutableSetOf(),
-                greenKeyList = mutableSetOf()
-            )
+        if (hasWon) {
+            _keyState.update { currentState ->
+                currentState.copy(
+                    redKeyList = mutableSetOf(),
+                    orangeKeyList = mutableSetOf(),
+                    greenKeyList = mutableSetOf()
+                )
+            }
         }
     }
 
@@ -263,9 +283,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun getWord() = wordList.let {
-        if (it.isNotEmpty()) it.random()
-        else ""
+    private fun getNewWord() = viewModelScope.launch {
+        repository.getWord().collect {
+            _currentWord.value = it.word
+        }
     }
 
     private fun getCharIndices(word: String, char: Char): List<Int> {
