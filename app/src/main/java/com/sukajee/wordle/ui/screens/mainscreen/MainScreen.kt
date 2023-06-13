@@ -64,11 +64,11 @@ fun MainScreen(
 ) {
     val state by viewModel.gameState.collectAsState()
     val keyState by viewModel.keyState.collectAsState()
-    val currentWord by viewModel.currentWord.collectAsState()
+    val currentWordleEntry by viewModel.currentWordleEntry.collectAsState()
     rememberCoroutineScope()
 
     StateLessMainScreen(
-        currentWord = currentWord,
+        currentWord = currentWordleEntry.word,
         state = state,
         onEvent = { viewModel.onEvent(it) },
         keyState = keyState

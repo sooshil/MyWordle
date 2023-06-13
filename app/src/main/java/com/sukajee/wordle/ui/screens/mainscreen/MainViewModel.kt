@@ -13,30 +13,35 @@ import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
 import com.sukajee.wordle.util.IS_FIRST_TIME_RUN
+import com.sukajee.wordle.util.MAXIMUM_WORD_COUNT
 import com.sukajee.wordle.util.UiEvent
+import com.sukajee.wordle.util.WORD_NUMBER
 import com.sukajee.wordle.util.WordleEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 private const val TAG = "MainViewModel"
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: BaseRepository,
-    sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences
 ) : ViewModel() {
 
     private val _gameState = MutableStateFlow(GameUiState())
     val gameState = _gameState.asStateFlow()
 
-    private var _currentWord = MutableStateFlow("")
-    val currentWord = _currentWord.asStateFlow()
+    private var _currentWordleEntry = MutableStateFlow(WordleEntry(word = ""))
+    val currentWordleEntry = _currentWordleEntry.asStateFlow()
 
     private val _keyState = MutableStateFlow(KeyState())
     val keyState = _keyState.asStateFlow()
@@ -47,30 +52,37 @@ class MainViewModel @Inject constructor(
     private var currentRow = 0
     private var usedCharData = mutableMapOf<Char, Int>()
 
+    private var currentWordCount by Delegates.notNull<Int>()
+
     //    private var wordList: List<String> = emptyList()
     private var allWords: List<String> = emptyList()
-    private var usedWords: List<String> = emptyList()
 
     init {
         val isFirstTimeRun = sharedPreferences.getBoolean(IS_FIRST_TIME_RUN, true)
         if (isFirstTimeRun) {
-            val wordleEntries = mutableListOf<WordleEntry>()
-            viewModelScope.launch {
-                val words = repository.getTopWordsFromAsset()
-                words.forEach { word ->
-                    wordleEntries.add(
-                        WordleEntry(word = word)
-                    )
-                }
-                repository.insertAllWords(wordleEntries)
-            }
+            fetchAndSaveWords()
             sharedPreferences.edit().also {
                 it.putBoolean(IS_FIRST_TIME_RUN, false)
             }.apply()
         }
+
         getNewWord()
         viewModelScope.launch {
             allWords = repository.getAllWordsFromAsset()
+        }
+        currentWordCount = sharedPreferences.getInt(WORD_NUMBER, 1)
+    }
+
+    private fun fetchAndSaveWords() {
+        val wordleEntries = mutableListOf<WordleEntry>()
+        viewModelScope.launch {
+           val words = repository.getTopWordsFromAsset()
+            words.forEach { word ->
+                wordleEntries.add(
+                    WordleEntry(word = word)
+                )
+            }
+            repository.insertAllWords(wordleEntries)
         }
     }
 
@@ -88,13 +100,16 @@ class MainViewModel @Inject constructor(
             return
         }
         updateGameState(enteredWord)
+        if (currentWordCount > 1000) {
+            checkIfDatabaseResetRequired()
+        }
     }
 
     private fun updateGameState(enteredWord: String) {
         _gameState.update { currentState ->
             val grid = currentState.grid
             enteredWord.forEachIndexed { index, c ->
-                if (c == _currentWord.value[index]) {
+                if (c == _currentWordleEntry.value.word[index]) {
                     grid[currentRow][index] = Cell(
                         char = c,
                         cellType = CellType.CorrectCharCorrectPosition
@@ -107,7 +122,7 @@ class MainViewModel @Inject constructor(
                             greenKeyList = currentState.greenKeyList
                         )
                     }
-                } else if (_currentWord.value.contains(c)) {
+                } else if (_currentWordleEntry.value.word.contains(c)) {
                     if (enteredWord.count { it == c } == 1) {
                         grid[currentRow][index] = Cell(
                             char = c,
@@ -115,7 +130,7 @@ class MainViewModel @Inject constructor(
                         )
                     } else {
                         val charPositionsInCurrentWord =
-                            getCharIndices(_currentWord.value, c)
+                            getCharIndices(_currentWordleEntry.value.word, c)
                         val charPositionsInEnteredWord =
                             getCharIndices(enteredWord, c)
                         val diff =
@@ -171,11 +186,27 @@ class MainViewModel @Inject constructor(
                 }
             }
             usedCharData = mutableMapOf()
-            if (enteredWord == currentWord.value || currentRow == 5) {
+            val hasWon = enteredWord == _currentWordleEntry.value.word
+            if (hasWon) {
+                viewModelScope.launch {
+                    repository.insertWord(
+                        WordleEntry(
+                            entryId = _currentWordleEntry.value.entryId,
+                            word = _currentWordleEntry.value.word,
+                            isSolved = true,
+                            attempt = currentRow
+                        )
+                    )
+                }
+                sharedPreferences.edit().also {
+                    it.putInt(WORD_NUMBER, ++currentWordCount)
+                }.apply()
+            }
+            if (hasWon || currentRow == 5) {
                 currentState.copy(
                     grid = grid,
                     isGameOver = true,
-                    hasWon = enteredWord == currentWord.value
+                    hasWon = hasWon
                 )
             } else {
                 currentState.copy(
@@ -261,6 +292,16 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    private fun checkIfDatabaseResetRequired() {
+        if(currentWordCount > MAXIMUM_WORD_COUNT) {
+            viewModelScope.launch {
+                repository.deleteAllWords()
+                fetchAndSaveWords()
+            }
+            sharedPreferences.edit().also { it.putInt(WORD_NUMBER, 1) }.apply()
+        }
+    }
+
     private fun resetGrid() = MutableList(size = 6) {
         MutableList(size = 5) { _ ->
             Cell(char = ' ')
@@ -284,9 +325,14 @@ class MainViewModel @Inject constructor(
     }
 
     private fun getNewWord() = viewModelScope.launch {
-        repository.getWord().collect {
-            _currentWord.value = it.word
-        }
+        repository.getWord()
+            .filterNotNull()
+            .transform { entry ->
+                emit(entry)
+            }
+            .collect { word ->
+                _currentWordleEntry.value = word
+            }
     }
 
     private fun getCharIndices(word: String, char: Char): List<Int> {

@@ -17,4 +17,7 @@ interface WordleDao {
 
     @Query("SELECT * FROM wordle_entries WHERE isSolved = 0 ORDER BY RANDOM() LIMIT 1")
     fun getWord(): Flow<WordleEntry>
+
+    @Query("DELETE FROM wordle_entries")
+    suspend fun deleteAllWords()
 }

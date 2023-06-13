@@ -23,9 +23,13 @@ class WordleRepository @Inject constructor(
 
     override suspend fun getTopWordsFromAsset(): List<String> = readFromAsset(context, "words.txt")
 
-    override fun getWord(): Flow<WordleEntry> = dao.getWord()
+    override fun getWord(): Flow<WordleEntry?> = dao.getWord()
 
     override suspend fun insertAllWords(words: List<WordleEntry>) = dao.insertAllWords(words)
+
+    override suspend fun insertWord(word: WordleEntry) = dao.insertWord(word)
+
+    override suspend fun deleteAllWords() = dao.deleteAllWords()
 
     private fun readFromAsset(context: Context, fileName: String): List<String> {
         try {
