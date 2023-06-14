@@ -36,14 +36,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.PlatformTextStyle
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.R
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.ui.KeyState
+import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
 import com.sukajee.wordle.ui.components.TopBar
@@ -55,7 +54,7 @@ import com.sukajee.wordle.util.ErrorType
 import com.sukajee.wordle.util.WordleEvent
 import com.sukajee.wordle.util.getBorderColor
 import com.sukajee.wordle.util.getCellColor
-import com.sukajee.wordle.util.getCharColor
+import com.sukajee.wordle.util.padWithZeros
 import com.sukajee.wordle.R.string as strings
 
 @Composable
@@ -96,9 +95,9 @@ fun StateLessMainScreen(
             TopBar(
                 modifier = Modifier
                     .clickable {
-                    shouldShowWord = !shouldShowWord
-                },
-                title = if (shouldShowWord) currentWord else stringResource(id = strings.app_name)
+                        shouldShowWord = !shouldShowWord
+                    },
+                title = if (shouldShowWord) currentWord else "Word No - ${state.currentWordNumber.toString().padWithZeros()}"
             )
         }
     ) { padding ->
@@ -199,13 +198,9 @@ fun PortraitMainScreen(
                                 ),
                             contentAlignment = Center
                         ) {
-                            Text(
+                            AnimatedText(
                                 text = (state.grid[eachRow][eachColumn].char).toString(),
-                                style = TextStyle(
-                                    platformStyle = PlatformTextStyle(includeFontPadding = false),
-                                    fontSize = 34.sp
-                                ),
-                                color = getCharColor(cell = cell)
+                                cell = cell
                             )
                         }
                         Spacer(modifier = Modifier.width(5.dp))

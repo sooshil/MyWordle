@@ -54,7 +54,6 @@ class MainViewModel @Inject constructor(
 
     private var currentWordCount by Delegates.notNull<Int>()
 
-    //    private var wordList: List<String> = emptyList()
     private var allWords: List<String> = emptyList()
 
     init {
@@ -65,12 +64,11 @@ class MainViewModel @Inject constructor(
                 it.putBoolean(IS_FIRST_TIME_RUN, false)
             }.apply()
         }
-
-        getNewWord()
+        currentWordCount = sharedPreferences.getInt(WORD_NUMBER, 1)
         viewModelScope.launch {
             allWords = repository.getAllWordsFromAsset()
         }
-        currentWordCount = sharedPreferences.getInt(WORD_NUMBER, 1)
+        getNewWord()
     }
 
     private fun fetchAndSaveWords() {
@@ -90,7 +88,7 @@ class MainViewModel @Inject constructor(
         val enteredWord = _gameState.value.grid[currentRow].map {
             it.char
         }.joinToString().replace(", ", "")
-
+        if(enteredWord.trim().isEmpty()) return
         if (enteredWord.isDictionaryWord().not()) {
             _gameState.update { currentUiState ->
                 currentUiState.copy(
@@ -110,18 +108,7 @@ class MainViewModel @Inject constructor(
             val grid = currentState.grid
             enteredWord.forEachIndexed { index, c ->
                 if (c == _currentWordleEntry.value.word[index]) {
-                    grid[currentRow][index] = Cell(
-                        char = c,
-                        cellType = CellType.CorrectCharCorrectPosition
-                    )
-                    _keyState.update { currentState ->
-                        currentState.orangeKeyList.remove(c)
-                        currentState.redKeyList.remove(c)
-                        currentState.greenKeyList.add(c)
-                        currentState.copy(
-                            greenKeyList = currentState.greenKeyList
-                        )
-                    }
+                    handleCorrectCharCorrectPlace(grid, index, c)
                 } else if (_currentWordleEntry.value.word.contains(c)) {
                     if (enteredWord.count { it == c } == 1) {
                         grid[currentRow][index] = Cell(
@@ -163,9 +150,7 @@ class MainViewModel @Inject constructor(
                     }
                     _keyState.update { currentState ->
                         currentState.redKeyList.remove(c)
-                        if (currentState.greenKeyList.contains(c)
-                                .not()
-                        ) currentState.orangeKeyList.add(c)
+                        if (currentState.greenKeyList.contains(c).not()) currentState.orangeKeyList.add(c)
                         currentState.copy(
                             orangeKeyList = currentState.orangeKeyList
                         )
@@ -214,6 +199,25 @@ class MainViewModel @Inject constructor(
                     currentGridIndex = Pair(++currentRow, 0)
                 )
             }
+        }
+    }
+
+    private fun handleCorrectCharCorrectPlace(
+        grid: MutableList<MutableList<Cell>>,
+        index: Int,
+        c: Char
+    ) {
+        grid[currentRow][index] = Cell(
+            char = c,
+            cellType = CellType.CorrectCharCorrectPosition
+        )
+        _keyState.update { currentState ->
+            currentState.orangeKeyList.remove(c)
+            currentState.redKeyList.remove(c)
+            currentState.greenKeyList.add(c)
+            currentState.copy(
+                greenKeyList = currentState.greenKeyList
+            )
         }
     }
 
@@ -325,6 +329,11 @@ class MainViewModel @Inject constructor(
     }
 
     private fun getNewWord() = viewModelScope.launch {
+        _gameState.update {
+            it.copy(
+                currentWordNumber = currentWordCount
+            )
+        }
         repository.getWord()
             .filterNotNull()
             .transform { entry ->
