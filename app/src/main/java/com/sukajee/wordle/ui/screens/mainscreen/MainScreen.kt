@@ -3,8 +3,7 @@ package com.sukajee.wordle.ui.screens.mainscreen
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,15 +18,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -35,10 +37,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.R
 import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.GameUiState
+import com.sukajee.wordle.ui.KeyState
+import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
 import com.sukajee.wordle.ui.components.TopBar
@@ -47,10 +51,11 @@ import com.sukajee.wordle.ui.previews.OrientationPreviews
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
+import com.sukajee.wordle.util.Strings
 import com.sukajee.wordle.util.WordleEvent
 import com.sukajee.wordle.util.getBorderColor
 import com.sukajee.wordle.util.getCellColor
-import com.sukajee.wordle.util.getCharColor
+import com.sukajee.wordle.util.padWithZeros
 import com.sukajee.wordle.R.string as strings
 
 @Composable
@@ -59,11 +64,11 @@ fun MainScreen(
 ) {
     val state by viewModel.gameState.collectAsState()
     val keyState by viewModel.keyState.collectAsState()
-    val currentWord by viewModel.currentWord.collectAsState()
+    val currentWordleEntry by viewModel.currentWordleEntry.collectAsState()
     rememberCoroutineScope()
 
     StateLessMainScreen(
-        currentWord = currentWord,
+        currentWord = currentWordleEntry.word,
         state = state,
         onEvent = { viewModel.onEvent(it) },
         keyState = keyState
@@ -81,11 +86,20 @@ fun StateLessMainScreen(
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+    var shouldShowWord by remember {
+        mutableStateOf(false)
+    }
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
         topBar = {
-            TopBar(title = currentWord) //stringResource(id = strings.app_name))
+            TopBar(
+                modifier = Modifier
+                    .clickable {
+                        shouldShowWord = !shouldShowWord
+                    },
+                title = if (shouldShowWord) currentWord else "Word No - ${state.currentWordNumber.toString().padWithZeros()}"
+            )
         }
     ) { padding ->
         if (portrait) {
@@ -94,12 +108,13 @@ fun StateLessMainScreen(
             state.error?.let {
                 when (it) {
                     is ErrorType.WordNotFound -> CustomDialog(
+                        animatingIconPath = R.raw.warning,
                         title = stringResource(id = R.string.word_not_found_title),
                         message = stringResource(
                             id = R.string.word_not_found_message,
-                            it.enteredWord
+                            it.enteredWord.trim()
                         ),
-                        positiveButtonText = stringResource(id = R.string.yes),
+                        positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
@@ -117,9 +132,11 @@ fun StateLessMainScreen(
                 if (it) {
                     val won = state.hasWon ?: false
                     CustomDialog(
-                        title = stringResource(id = if (won) R.string.you_won else R.string.you_lost),
-                        message = stringResource(id = R.string.start_new_game),
-                        positiveButtonText = stringResource(id = R.string.yes),
+                        animatingIconPath = if (won) R.raw.checkmark else R.raw.crossmark,
+                        title = stringResource(id = if (won) Strings.getPositiveStrings() else Strings.getNegativeStrings()),
+                        message = if (won) stringResource(id =  Strings.wordFoundMessage()) else stringResource(
+                            id = Strings.wordNotFoundMessage(), currentWord),
+                        positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
@@ -161,14 +178,11 @@ fun PortraitMainScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(padding)
-            .scrollable(
-                state = rememberScrollState(),
-                orientation = Orientation.Vertical
-            ),
+            .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = CenterHorizontally
     ) {
         Column {
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             repeat(6) { eachRow ->
                 Spacer(modifier = Modifier.height(5.dp))
                 Row {
@@ -177,7 +191,7 @@ fun PortraitMainScreen(
                         val cell = state.grid[eachRow][eachColumn]
                         Box(
                             modifier = Modifier
-                                .size(56.dp)
+                                .size(60.dp)
                                 .clip(RoundedCornerShape(5.dp))
                                 .background(getCellColor(cell = cell))
                                 .border(
@@ -187,10 +201,9 @@ fun PortraitMainScreen(
                                 ),
                             contentAlignment = Center
                         ) {
-                            Text(
+                            AnimatedText(
                                 text = (state.grid[eachRow][eachColumn].char).toString(),
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = getCharColor(cell = cell)
+                                cell = cell
                             )
                         }
                         Spacer(modifier = Modifier.width(5.dp))
@@ -209,15 +222,15 @@ fun PortraitMainScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Button(
-                onClick = { onEvent(WordleEvent.OnHint) }
-            ) {
-                Text(text = stringResource(id = strings.hint))
-            }
+//            Button(
+//                onClick = { onEvent(WordleEvent.OnHint) }
+//            ) {
+//                Text(text = stringResource(id = strings.hint))
+//            }
             Button(
                 onClick = { onEvent(WordleEvent.OnSubmit) }
             ) {
-                Text(text = stringResource(id = strings.check))
+                Text(text = stringResource(id = strings.check), fontSize = 16.sp)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))

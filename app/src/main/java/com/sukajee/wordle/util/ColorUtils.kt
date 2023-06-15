@@ -14,6 +14,14 @@ import androidx.compose.ui.graphics.Color.Companion.Yellow
 import com.sukajee.wordle.ui.Cell
 import com.sukajee.wordle.ui.CellType
 import com.sukajee.wordle.ui.components.KeyColorsType
+import com.sukajee.wordle.ui.theme.ColorGrayDark
+import com.sukajee.wordle.ui.theme.ColorGrayLight
+import com.sukajee.wordle.ui.theme.ColorGreenDark
+import com.sukajee.wordle.ui.theme.ColorGreenLight
+import com.sukajee.wordle.ui.theme.ColorRedDark
+import com.sukajee.wordle.ui.theme.ColorRedLight
+import com.sukajee.wordle.ui.theme.ColorYellowDark
+import com.sukajee.wordle.ui.theme.ColorYellowLight
 
 @Composable
 fun getCharColor(cell: Cell): Color =
@@ -27,25 +35,25 @@ fun getCharColor(cell: Cell): Color =
 @Composable
 fun getCellColor(cell: Cell): Color =
     when (cell.cellType) {
-        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
-        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
+        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) ColorGreenDark else ColorGreenLight
+        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) ColorYellowDark else ColorYellowLight
         CellType.EmptyCell -> Color.Transparent
-        CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFF616161) else Color(0xFF808080)
+        CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) ColorGrayDark else ColorGrayLight
     }
 
 @Composable
 fun getBorderColor(cell: Cell): Color =
     when (cell.cellType) {
-        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
-        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
+        CellType.CorrectCharCorrectPosition -> if(isSystemInDarkTheme()) ColorGreenDark else ColorGreenLight
+        CellType.CorrectCharWrongPosition -> if(isSystemInDarkTheme()) ColorYellowDark else ColorYellowLight
         CellType.EmptyCell -> MaterialTheme.colorScheme.onSurface
-        CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) Color(0xFF616161) else Color(0xFF808080)
+        CellType.WrongCharWrongPosition -> if(isSystemInDarkTheme()) ColorGrayDark else ColorGrayLight
     }
 
 @Composable
 fun getKeyColor(type: KeyColorsType): Color =
     when (type) {
-        KeyColorsType.GREEN -> if(isSystemInDarkTheme()) Color(0xFF208602) else Green
-        KeyColorsType.RED -> if(isSystemInDarkTheme()) Color(0xFF801E40) else Color(0xFFC25477)
-        KeyColorsType.ORANGE -> if(isSystemInDarkTheme()) Color(0xFFC08A03) else Color(0xFFD5A93B)
+        KeyColorsType.GREEN -> if(isSystemInDarkTheme()) ColorGreenDark else ColorGreenLight
+        KeyColorsType.RED -> if(isSystemInDarkTheme()) ColorRedDark else ColorRedLight
+        KeyColorsType.ORANGE -> if(isSystemInDarkTheme()) ColorYellowDark else ColorYellowLight
     }

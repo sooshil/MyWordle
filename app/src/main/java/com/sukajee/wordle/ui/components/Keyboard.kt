@@ -64,7 +64,7 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -91,7 +91,7 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -131,7 +131,7 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
