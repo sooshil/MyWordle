@@ -51,6 +51,7 @@ import com.sukajee.wordle.ui.previews.OrientationPreviews
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
+import com.sukajee.wordle.util.Strings
 import com.sukajee.wordle.util.WordleEvent
 import com.sukajee.wordle.util.getBorderColor
 import com.sukajee.wordle.util.getCellColor
@@ -107,6 +108,7 @@ fun StateLessMainScreen(
             state.error?.let {
                 when (it) {
                     is ErrorType.WordNotFound -> CustomDialog(
+                        animatingIconPath = R.raw.warning,
                         title = stringResource(id = R.string.word_not_found_title),
                         message = stringResource(
                             id = R.string.word_not_found_message,
@@ -130,15 +132,16 @@ fun StateLessMainScreen(
                 if (it) {
                     val won = state.hasWon ?: false
                     CustomDialog(
-                        title = stringResource(id = if (won) R.string.you_won else R.string.you_lost),
-                        message = stringResource(id = if (won) R.string.start_new_game else R.string.you_did_not_find_the_word),
-                        positiveButtonText = stringResource(id = if (won) R.string.yes else R.string.retry),
+                        animatingIconPath = if (won) R.raw.checkmark else R.raw.crossmark,
+                        title = stringResource(id = if (won) Strings.getPositiveStrings() else Strings.getNegativeStrings()),
+                        message = if (won) stringResource(id =  Strings.wordFoundMessage()) else stringResource(
+                            id = Strings.wordNotFoundMessage(), currentWord),
+                        positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
                                     buttonType = ButtonType.POSITIVE,
-                                    dialogType = DialogType.GAME_OVER_DIALOG,
-                                    hasWon = won
+                                    dialogType = DialogType.GAME_OVER_DIALOG
                                 )
                             )
                         },
@@ -179,7 +182,7 @@ fun PortraitMainScreen(
         horizontalAlignment = CenterHorizontally
     ) {
         Column {
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             repeat(6) { eachRow ->
                 Spacer(modifier = Modifier.height(5.dp))
                 Row {

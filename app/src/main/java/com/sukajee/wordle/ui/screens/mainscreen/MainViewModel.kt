@@ -136,7 +136,6 @@ class MainViewModel @Inject constructor(
                                         cellType = CellType.WrongCharWrongPosition
                                     )
                                 }
-
                                 else -> {
                                     grid[currentRow][index] =
                                         Cell(
@@ -179,7 +178,7 @@ class MainViewModel @Inject constructor(
                             entryId = _currentWordleEntry.value.entryId,
                             word = _currentWordleEntry.value.word,
                             isSolved = true,
-                            attempt = currentRow
+                            attempt = currentRow + 1
                         )
                     )
                 }
@@ -253,7 +252,7 @@ class MainViewModel @Inject constructor(
         when (event.dialogType) {
             DialogType.GAME_OVER_DIALOG -> {
                 when (event.buttonType) {
-                    ButtonType.POSITIVE -> resetGameState(event.hasWon)
+                    ButtonType.POSITIVE -> resetGameState()
                     ButtonType.NEGATIVE -> {}
                 }
             }
@@ -274,9 +273,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun resetGameState(hasWon: Boolean) {
+    private fun resetGameState() {
         currentRow = 0
-        if (hasWon) getNewWord()
+        getNewWord()
         _gameState.update { currentState ->
             currentState.copy(
                 grid = resetGrid(),
@@ -285,14 +284,12 @@ class MainViewModel @Inject constructor(
                 hasWon = null
             )
         }
-        if (hasWon) {
-            _keyState.update { currentState ->
-                currentState.copy(
-                    redKeyList = mutableSetOf(),
-                    orangeKeyList = mutableSetOf(),
-                    greenKeyList = mutableSetOf()
-                )
-            }
+        _keyState.update { currentState ->
+            currentState.copy(
+                redKeyList = mutableSetOf(),
+                orangeKeyList = mutableSetOf(),
+                greenKeyList = mutableSetOf()
+            )
         }
     }
 
@@ -339,8 +336,8 @@ class MainViewModel @Inject constructor(
             .transform { entry ->
                 emit(entry)
             }
-            .collect { word ->
-                _currentWordleEntry.value = word
+            .collect { wordleEntry ->
+                _currentWordleEntry.value = wordleEntry
             }
     }
 
