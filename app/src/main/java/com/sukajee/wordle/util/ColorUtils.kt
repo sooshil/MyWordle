@@ -4,15 +4,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.DarkGray
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.LightGray
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Color.Companion.White
-import androidx.compose.ui.graphics.Color.Companion.Yellow
-import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.CellType
+import com.sukajee.wordle.ui.screens.mainscreen.Cell
+import com.sukajee.wordle.ui.screens.mainscreen.CellType
 import com.sukajee.wordle.ui.components.KeyColorsType
 import com.sukajee.wordle.ui.theme.ColorGrayDark
 import com.sukajee.wordle.ui.theme.ColorGrayLight

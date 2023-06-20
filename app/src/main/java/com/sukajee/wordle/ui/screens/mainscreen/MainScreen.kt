@@ -38,9 +38,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.sukajee.wordle.R
-import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
@@ -60,6 +59,7 @@ import com.sukajee.wordle.R.string as strings
 
 @Composable
 fun MainScreen(
+    navController: NavController,
     viewModel: MainViewModel
 ) {
     val state by viewModel.gameState.collectAsState()

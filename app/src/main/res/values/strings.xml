@@ -67,4 +67,9 @@
     <string name="word_not_found_variant_three">No success in finding the word. The hidden word was: %1$s.\nLet\'s hope for better luck with the next.</string>
     <string name="word_not_found_variant_four">The search for the word was unsuccessful. The hidden word was: %1$s.\nKeep going with the next word.</string>
     <string name="word_not_found_variant_five">The word stayed unresolved. The hidden word was: %1$s.\nBetter luck with the next one.</string>
+    <string name="statistics">Statistics</string>
+    <string name="played">Played\n</string>
+    <string name="win_percentage">Win %</string>
+    <string name="current_streak">Current Streak</string>
+    <string name="max_streak">Max Streak</string>
 </resources>

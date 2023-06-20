@@ -5,9 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sukajee.wordle.model.WordleEntry
 import com.sukajee.wordle.repository.BaseRepository
-import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.CellType
-import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
@@ -342,10 +339,6 @@ class MainViewModel @Inject constructor(
     }
 
     private fun getCharIndices(word: String, char: Char): List<Int> {
-        val indices = mutableListOf<Int>()
-        for (i in word.indices) {
-            if (word[i] == char) indices.add(i)
-        }
-        return indices
+        return word.mapIndexedNotNull { index, c -> if (c == char) index else null }
     }
 }
