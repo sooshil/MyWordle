@@ -27,7 +27,6 @@ fun StatsScreen(
     navController: NavController,
     statsViewModel: StatsViewModel
 ) {
-
     val stats by statsViewModel.statUiState.collectAsState()
     StateLessStatsScreen(stats = stats)
 }
@@ -50,7 +49,7 @@ fun StateLessStatsScreen(
         Column(
             modifier = modifier.padding(padding)
         ) {
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             StatisticsRow(stats = stats, modifier = modifier)
             Spacer(modifier = Modifier.height(16.dp))
             GuessDistribution(
@@ -67,18 +66,13 @@ fun StatisticsRow(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        modifier.fillMaxWidth().padding(horizontal = 8.dp)
     ) {
         val winPercent = if (stats.playStats.playedCount == 0) {
-            0f.toString()
+            0.toString()
         } else {
             val percentage = stats.playStats.wonCount * 100f / stats.playStats.playedCount
-            if (percentage == percentage.toInt().toFloat()) {
-                percentage.toInt().toString()
-            } else {
-                String.format("%.1f", percentage)
-            }
+            percentage.toInt().toString()
         }
         StatsItem(
             modifier = Modifier.weight(1f),
@@ -92,7 +86,8 @@ fun StatisticsRow(
             stat = Stat(
                 text = stringResource(id = R.string.win_percentage),
                 value = winPercent
-            )
+            ),
+            withPercent = true
         )
         StatsItem(
             modifier = Modifier.weight(1f),

@@ -31,6 +31,8 @@ class WordleRepository @Inject constructor(
 
     override suspend fun deleteAllWords() = dao.deleteAllWords()
 
+    override suspend fun getWonCount(): Int = dao.getWonCount()
+
     private fun readFromAsset(context: Context, fileName: String): List<String> {
         try {
             val inputStream: InputStream = context.assets.open(fileName)

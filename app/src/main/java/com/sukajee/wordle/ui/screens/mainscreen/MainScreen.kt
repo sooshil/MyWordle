@@ -32,14 +32,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sukajee.wordle.R
+import com.sukajee.wordle.navigation.Screen
 import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
@@ -71,18 +74,20 @@ fun MainScreen(
         currentWord = currentWordleEntry.word,
         state = state,
         onEvent = { viewModel.onEvent(it) },
+        onMenuClick = { navController.navigate(Screen.StatsScreen.route) },
         keyState = keyState
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun StateLessMainScreen(
     currentWord: String,
     state: GameUiState,
     keyState: KeyState,
     onEvent: (WordleEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMenuClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -98,7 +103,8 @@ fun StateLessMainScreen(
                     .clickable {
                         shouldShowWord = !shouldShowWord
                     },
-                title = if (shouldShowWord) currentWord else "Word No - ${state.currentWordNumber.toString().padWithZeros()}"
+                title = if (shouldShowWord) currentWord else "Word No - ${state.currentWordNumber.toString().padWithZeros()}",
+                onClick = onMenuClick
             )
         }
     ) { padding ->
@@ -113,6 +119,26 @@ fun StateLessMainScreen(
                         message = stringResource(
                             id = R.string.word_not_found_message,
                             it.enteredWord.trim()
+                        ),
+                        positiveButtonText = stringResource(id = R.string.ok),
+                        onPositiveButtonClick = {
+                            onEvent(
+                                WordleEvent.OnDialogButtonClick(
+                                    dialogType = DialogType.ERROR_DIALOG,
+                                    buttonType = ButtonType.POSITIVE
+                                )
+                            )
+                        },
+                        onDismiss = { }
+                    )
+                    is ErrorType.WordLengthNotValid -> CustomDialog(
+                        animatingIconPath = R.raw.warning,
+                        title = stringResource(id = R.string.incorrect_word_length),
+                        message = pluralStringResource(
+                            id = R.plurals.incorrect_word_length_message,
+                            count = it.enteredWord.trim().length,
+                            it.enteredWord.trim(),
+                            it.enteredWord.trim().length
                         ),
                         positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
@@ -141,7 +167,8 @@ fun StateLessMainScreen(
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
                                     buttonType = ButtonType.POSITIVE,
-                                    dialogType = DialogType.GAME_OVER_DIALOG
+                                    dialogType = DialogType.GAME_OVER_DIALOG,
+                                    hasWon = won
                                 )
                             )
                         },
@@ -258,6 +285,7 @@ fun MainScreenPreview() {
             currentGridIndex = Pair(0, 0)
         ),
         onEvent = {},
-        keyState = KeyState()
+        keyState = KeyState(),
+        onMenuClick = {}
     )
 }

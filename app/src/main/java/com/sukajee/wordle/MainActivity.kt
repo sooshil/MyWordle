@@ -3,13 +3,11 @@ package com.sukajee.wordle
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.sukajee.wordle.ui.screens.mainscreen.MainScreen
-import com.sukajee.wordle.ui.screens.mainscreen.MainViewModel
+import com.sukajee.wordle.navigation.Navigation
 import com.sukajee.wordle.ui.theme.WordleTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -23,8 +21,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface
                 ) {
-                    val viewModel: MainViewModel by viewModels()
-                    MainScreen(viewModel)
+                    Navigation()
                 }
             }
         }
