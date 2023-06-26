@@ -33,6 +33,8 @@ class WordleRepository @Inject constructor(
 
     override suspend fun getWonCount(): Int = dao.getWonCount()
 
+    override suspend fun getPlayedWordStat(): List<WordleEntry> = dao.getPlayedWordStat()
+
     private fun readFromAsset(context: Context, fileName: String): List<String> {
         try {
             val inputStream: InputStream = context.assets.open(fileName)

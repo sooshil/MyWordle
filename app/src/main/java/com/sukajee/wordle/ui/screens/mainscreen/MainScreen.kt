@@ -1,6 +1,10 @@
 package com.sukajee.wordle.ui.screens.mainscreen
 
+import android.content.Context
 import android.content.res.Configuration
+import android.media.AudioManager
+import android.media.MediaPlayer
+import android.view.SoundEffectConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +40,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -103,7 +108,10 @@ fun StateLessMainScreen(
                     .clickable {
                         shouldShowWord = !shouldShowWord
                     },
-                title = if (shouldShowWord) currentWord else "Word No - ${state.currentWordNumber.toString().padWithZeros()}",
+                title = if (shouldShowWord) currentWord else "Word No - ${
+                    state.currentWordNumber.toString().padWithZeros()
+                }",
+                screenName = Screen.HomeScreen,
                 onClick = onMenuClick
             )
         }
@@ -131,6 +139,7 @@ fun StateLessMainScreen(
                         },
                         onDismiss = { }
                     )
+
                     is ErrorType.WordLengthNotValid -> CustomDialog(
                         animatingIconPath = R.raw.warning,
                         title = stringResource(id = R.string.incorrect_word_length),
@@ -160,8 +169,9 @@ fun StateLessMainScreen(
                     CustomDialog(
                         animatingIconPath = if (won) R.raw.checkmark else R.raw.crossmark,
                         title = stringResource(id = if (won) Strings.getPositiveStrings() else Strings.getNegativeStrings()),
-                        message = if (won) stringResource(id =  Strings.wordFoundMessage()) else stringResource(
-                            id = Strings.wordNotFoundMessage(), currentWord),
+                        message = if (won) stringResource(id = Strings.wordFoundMessage()) else stringResource(
+                            id = Strings.wordNotFoundMessage(), currentWord
+                        ),
                         positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
                             onEvent(
@@ -208,6 +218,8 @@ fun PortraitMainScreen(
             .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = CenterHorizontally
     ) {
+        val context = LocalContext.current
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         Column {
             Spacer(modifier = Modifier.height(32.dp))
             repeat(6) { eachRow ->
@@ -242,8 +254,14 @@ fun PortraitMainScreen(
         Spacer(modifier = Modifier.weight(1f))
         Keyboard(
             keyState = keyState,
-            onKey = { onEvent(WordleEvent.OnKey(it)) },
-            onBackSpace = { onEvent(WordleEvent.OnBackSpace) }
+            onKey = {
+                audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK,1.0f)
+                onEvent(WordleEvent.OnKey(it))
+            },
+            onBackSpace = {
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE,1.0f)
+                onEvent(WordleEvent.OnBackSpace)
+            }
         )
         Row(
             modifier = Modifier.fillMaxWidth(),

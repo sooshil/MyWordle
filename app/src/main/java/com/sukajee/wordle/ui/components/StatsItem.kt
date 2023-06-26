@@ -1,5 +1,10 @@
 package com.sukajee.wordle.ui.components
 
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,6 +13,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
@@ -23,14 +29,21 @@ fun StatsItem(
     stat: Stat,
     withPercent: Boolean = false
 ) {
+    val value by animateIntAsState(
+        targetValue = stat.value.toInt(),
+        animationSpec = tween(
+            durationMillis = 2000,
+            easing = FastOutLinearInEasing
+        )
+    )
     Card(
         modifier = modifier.padding(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
+        elevation = CardDefaults.cardElevation(8.dp),
         shape = RoundedCornerShape(8.dp)
     ) {
         val text = if (withPercent) {
             buildAnnotatedString {
-                append(stat.value)
+                append(value.toString())
                 withStyle(
                     style = SpanStyle(
                         fontSize = 14.sp
@@ -39,10 +52,12 @@ fun StatsItem(
                     append("%")
                 }
             }
-        } else buildAnnotatedString { append(stat.value) }
+        } else buildAnnotatedString { append(value.toString()) }
 
         Column(
-            modifier = Modifier.fillMaxWidth().padding(4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(4.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(

@@ -1,13 +1,12 @@
 package com.sukajee.wordle.ui.components
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -23,12 +22,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.R
+import com.sukajee.wordle.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
     modifier: Modifier = Modifier,
     title: String,
+    screenName: Screen,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
     backgroundColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit = { }
@@ -53,14 +54,59 @@ fun TopBar(
             containerColor = backgroundColor,
             titleContentColor = titleColor
         ),
+        navigationIcon = {
+            if (screenName != Screen.HomeScreen) {
+                IconButton(onClick = onClick) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+        },
         actions = {
-            IconButton(onClick = onClick) {
-                Icon(
-                    painter = painterResource(id = R.drawable.statistics),
-                    contentDescription = "Add Items",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
+            when (screenName) {
+                Screen.HelpScreen -> {}
+                Screen.HomeScreen -> {
+                    TopBarIcons.HomeScreen.icons?.let {
+                        it.forEach {
+                            IconButton(onClick = onClick) {
+                                Icon(
+                                    painter = painterResource(id = it),
+                                    contentDescription = "See statistics",
+                                    tint = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                    } ?: kotlin.run {
+                        IconButton(onClick = onClick) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.statistics),
+                                contentDescription = "See statistics",
+                                tint = MaterialTheme.colorScheme.onPrimary
+                            )
+                        }
+                    }
+                }
+
+                Screen.SettingsScreen -> {}
+
+                Screen.StatsScreen -> {
+                    IconButton(onClick = onClick) {
+                        Icon(
+                            imageVector = Icons.Default.Home,
+                            contentDescription = "See statistics",
+                            tint = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                }
             }
         },
     )
+}
+
+sealed class TopBarIcons(val icons: List<Int>?) {
+    object Statistics : TopBarIcons(icons = listOf(R.drawable.statistics))
+    object HomeScreen : TopBarIcons(icons = null)
 }

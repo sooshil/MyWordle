@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.sukajee.wordle.model.WordleEntry
 import com.sukajee.wordle.repository.BaseRepository
 import com.sukajee.wordle.util.CURRENT_STREAK_COUNT
 import com.sukajee.wordle.util.MAX_STREAK_COUNT
@@ -22,6 +23,8 @@ class StatsViewModel @Inject constructor(
 ) : ViewModel() {
 
     private var won = 0
+    private val playedWords: MutableList<WordleEntry> = mutableListOf()
+    private val guesses = mutableMapOf<Int, Int>()
 
     private val _statUiState = MutableStateFlow(StatsUiState())
     val statUiState = _statUiState.asStateFlow()
@@ -29,6 +32,7 @@ class StatsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             won = repository.getWonCount() ?: 0
+            playedWords.addAll(repository.getPlayedWordStat())
             updateUiState()
         }
     }
@@ -37,6 +41,10 @@ class StatsViewModel @Inject constructor(
         val played = sharedPreferences.getInt(PLAYED_WORD_COUNT, 0)
         val currentStreak = sharedPreferences.getInt(CURRENT_STREAK_COUNT, 0)
         val maxStreak = sharedPreferences.getInt(MAX_STREAK_COUNT, 0)
+
+        for (i in 1..6) {
+            guesses[i] = playedWords.count { it.attempt == i}
+        }
         _statUiState.update { currentState ->
             Log.d("TAG", "StatsViewModel: won = $won")
             currentState.copy(
@@ -45,7 +53,8 @@ class StatsViewModel @Inject constructor(
                     wonCount = won,
                     currentStreak = currentStreak,
                     maxStreak = maxStreak
-                )
+                ),
+                guesses = guesses
             )
         }
     }

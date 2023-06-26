@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -18,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sukajee.wordle.R
+import com.sukajee.wordle.navigation.Screen
 import com.sukajee.wordle.ui.components.Stat
 import com.sukajee.wordle.ui.components.StatsItem
 import com.sukajee.wordle.ui.components.TopBar
@@ -28,21 +30,29 @@ fun StatsScreen(
     statsViewModel: StatsViewModel
 ) {
     val stats by statsViewModel.statUiState.collectAsState()
-    StateLessStatsScreen(stats = stats)
+    StateLessStatsScreen(
+        stats = stats,
+        onClick = {
+            navController.popBackStack()
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StateLessStatsScreen(
     modifier: Modifier = Modifier,
-    stats: StatsUiState
+    stats: StatsUiState,
+    onClick: () -> Unit
 ) {
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
         topBar = {
             TopBar(
-                title = stringResource(id = R.string.statistics).uppercase()
+                title = stringResource(id = R.string.statistics).uppercase(),
+                screenName = Screen.StatsScreen,
+                onClick = onClick
             )
         }
     ) { padding ->
@@ -66,7 +76,9 @@ fun StatisticsRow(
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier.fillMaxWidth().padding(horizontal = 8.dp)
+        modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
     ) {
         val winPercent = if (stats.playStats.playedCount == 0) {
             0.toString()
@@ -111,5 +123,9 @@ fun GuessDistribution(
     modifier: Modifier = Modifier,
     stats: StatsUiState
 ) {
-
+    Column {
+        stats.guesses.forEach { (key, value) ->
+            Text(text = "Guess $key -> $value")
+        }
+    }
 }

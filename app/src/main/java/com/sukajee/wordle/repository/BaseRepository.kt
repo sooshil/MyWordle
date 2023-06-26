@@ -12,4 +12,5 @@ interface BaseRepository {
     suspend fun deleteAllWords()
 
     suspend fun getWonCount(): Int?
+    suspend fun getPlayedWordStat(): List<WordleEntry>
 }
