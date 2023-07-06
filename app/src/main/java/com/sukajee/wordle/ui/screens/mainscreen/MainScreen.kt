@@ -3,11 +3,8 @@ package com.sukajee.wordle.ui.screens.mainscreen
 import android.content.Context
 import android.content.res.Configuration
 import android.media.AudioManager
-import android.media.MediaPlayer
-import android.view.SoundEffectConstants
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,10 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -48,7 +42,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.sukajee.wordle.R
 import com.sukajee.wordle.navigation.Screen
-import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
@@ -96,21 +89,13 @@ fun StateLessMainScreen(
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-    var shouldShowWord by remember {
-        mutableStateOf(false)
-    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
         topBar = {
             TopBar(
-                modifier = Modifier
-                    .clickable {
-                        shouldShowWord = !shouldShowWord
-                    },
-                title = if (shouldShowWord) currentWord else "Word No - ${
-                    state.currentWordNumber.toString().padWithZeros()
-                }",
+                title = "WORD NO - ${state.currentWordNumber.toString().padWithZeros()}",
                 screenName = Screen.HomeScreen,
                 onClick = onMenuClick
             )
@@ -275,7 +260,7 @@ fun PortraitMainScreen(
             Button(
                 onClick = { onEvent(WordleEvent.OnSubmit) }
             ) {
-                Text(text = stringResource(id = strings.check), fontSize = 16.sp)
+                Text(text = stringResource(id = strings.check), fontSize = 14.sp)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))

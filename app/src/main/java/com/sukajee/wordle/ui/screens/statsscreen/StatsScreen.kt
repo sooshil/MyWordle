@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -20,7 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.sukajee.wordle.R
 import com.sukajee.wordle.navigation.Screen
+import com.sukajee.wordle.ui.components.GuessDistribution
 import com.sukajee.wordle.ui.components.Stat
+import com.sukajee.wordle.ui.components.StatisticsRow
 import com.sukajee.wordle.ui.components.StatsItem
 import com.sukajee.wordle.ui.components.TopBar
 
@@ -57,7 +61,11 @@ fun StateLessStatsScreen(
         }
     ) { padding ->
         Column(
-            modifier = modifier.padding(padding)
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             StatisticsRow(stats = stats, modifier = modifier)
@@ -66,66 +74,6 @@ fun StateLessStatsScreen(
                 stats = stats,
                 modifier = modifier
             )
-        }
-    }
-}
-
-@Composable
-fun StatisticsRow(
-    stats: StatsUiState,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp)
-    ) {
-        val winPercent = if (stats.playStats.playedCount == 0) {
-            0.toString()
-        } else {
-            val percentage = stats.playStats.wonCount * 100f / stats.playStats.playedCount
-            percentage.toInt().toString()
-        }
-        StatsItem(
-            modifier = Modifier.weight(1f),
-            stat = Stat(
-                text = stringResource(id = R.string.played),
-                value = stats.playStats.playedCount.toString()
-            )
-        )
-        StatsItem(
-            modifier = Modifier.weight(1f),
-            stat = Stat(
-                text = stringResource(id = R.string.win_percentage),
-                value = winPercent
-            ),
-            withPercent = true
-        )
-        StatsItem(
-            modifier = Modifier.weight(1f),
-            stat = Stat(
-                text = stringResource(id = R.string.current_streak),
-                value = stats.playStats.currentStreak.toString()
-            )
-        )
-        StatsItem(
-            modifier = Modifier.weight(1f),
-            stat = Stat(
-                text = stringResource(id = R.string.max_streak),
-                value = stats.playStats.maxStreak.toString()
-            )
-        )
-    }
-}
-
-@Composable
-fun GuessDistribution(
-    modifier: Modifier = Modifier,
-    stats: StatsUiState
-) {
-    Column {
-        stats.guesses.forEach { (key, value) ->
-            Text(text = "Guess $key -> $value")
         }
     }
 }

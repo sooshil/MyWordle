@@ -77,4 +77,5 @@
     <string name="win_percentage">Win %</string>
     <string name="current_streak">Win Streak</string>
     <string name="max_streak">Max Streak</string>
+    <string name="guess_distribution">Guess Distribution</string>
 </resources>

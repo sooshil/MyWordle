@@ -1,4 +1,4 @@
-package com.sukajee.wordle.ui
+package com.sukajee.wordle.ui.screens.mainscreen
 
 data class KeyState (
     val redKeyList: MutableSet<Char> = mutableSetOf(),

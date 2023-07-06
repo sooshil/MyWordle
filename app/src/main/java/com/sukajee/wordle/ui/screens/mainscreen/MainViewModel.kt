@@ -1,12 +1,10 @@
 package com.sukajee.wordle.ui.screens.mainscreen
 
 import android.content.SharedPreferences
-import android.icu.text.BreakIterator.WORD_NUMBER
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sukajee.wordle.model.WordleEntry
 import com.sukajee.wordle.repository.BaseRepository
-import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.CURRENT_STREAK_COUNT
 import com.sukajee.wordle.util.DialogType
@@ -28,7 +26,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 private const val TAG = "MainViewModel"
 

@@ -1,6 +1,5 @@
 package com.sukajee.wordle.ui.components
 
-import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,10 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.sukajee.wordle.R
-import com.sukajee.wordle.ui.KeyState
+import androidx.compose.ui.unit.sp
+import com.sukajee.wordle.ui.screens.mainscreen.KeyState
 import com.sukajee.wordle.util.getKeyColor
 
 @Composable
@@ -67,7 +65,8 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 18.sp
                         )
                     }
                 }
@@ -94,7 +93,8 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 18.sp
                         )
                     }
                 }
@@ -134,7 +134,8 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontSize = 18.sp
                         )
                     }
                 }

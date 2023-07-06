@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -20,12 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -35,7 +33,7 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.sukajee.wordle.R
-import com.sukajee.wordle.util.DialogType
+import com.sukajee.wordle.ui.theme.PathWay
 
 @Composable
 fun CustomDialog(
@@ -87,7 +85,7 @@ fun CustomDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = TextStyle(
                                 fontSize = 24.sp,
-                                fontFamily = FontFamily.Default,
+                                fontFamily = PathWay,
                                 fontWeight = FontWeight.Bold
                             )
                         )
@@ -101,8 +99,8 @@ fun CustomDialog(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         style = TextStyle(
                             lineHeight = 36.sp,
-                            fontSize = 22.sp,
-                            fontFamily = FontFamily.Default,
+                            fontSize = 18.sp,
+                            fontFamily = PathWay,
                             textAlign = TextAlign.Center
                         )
                     )
@@ -125,8 +123,8 @@ fun CustomDialog(
                                 Text(
                                     text = negativeButtonText,
                                     style = TextStyle(
-                                        fontSize = 24.sp,
-                                        fontFamily = FontFamily.Default
+                                        fontSize = 18.sp,
+                                        fontFamily = PathWay
                                     )
                                 )
                             }
@@ -138,13 +136,13 @@ fun CustomDialog(
                             shape = RoundedCornerShape(30.dp),
                             modifier = Modifier
                                 .weight(1f)
-                                .height(40.dp)
+                                .wrapContentHeight()
                         ) {
                             Text(
                                 text = positiveButtonText,
                                 style = TextStyle(
-                                    fontSize = 24.sp,
-                                    fontFamily = FontFamily.Default
+                                    fontSize = 18.sp,
+                                    fontFamily = PathWay
                                 )
                             )
                         }

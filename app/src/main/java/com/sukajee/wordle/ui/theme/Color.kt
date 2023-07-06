@@ -18,3 +18,8 @@ val ColorYellowLight = Color(0xFFB68610)
 val ColorYellowDark = Color(0xFFA37502)
 val ColorGrayLight = Color(0xFF808080)
 val ColorGrayDark = Color(0xFF616161)
+
+val ColorStatItemLight = Color(0xFFCCF8DF)
+val ColorStatItemDark = Color(0xFF436852)
+val ColorStatItemTextLight = Color(0xFF036D2E)
+val ColorStatItemTextDark = Color(0xFF1ED569)

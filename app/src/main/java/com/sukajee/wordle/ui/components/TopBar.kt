@@ -46,7 +46,7 @@ fun TopBar(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 24.sp
+                    fontSize = 18.sp
                 )
             }
         },
@@ -107,6 +107,5 @@ fun TopBar(
 }
 
 sealed class TopBarIcons(val icons: List<Int>?) {
-    object Statistics : TopBarIcons(icons = listOf(R.drawable.statistics))
     object HomeScreen : TopBarIcons(icons = null)
 }
