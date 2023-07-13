@@ -22,12 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterStart
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.R
 import com.sukajee.wordle.ui.screens.statsscreen.StatsUiState
+import com.sukajee.wordle.ui.theme.LailaFontFamily
 
 @Composable
 fun GuessDistribution(
@@ -48,7 +51,10 @@ fun GuessDistribution(
         Text(
             modifier = modifier.padding(top = 24.dp),
             text = stringResource(R.string.guess_distribution),
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontFamily = LailaFontFamily,
+                fontWeight = FontWeight.Bold
+            ),
         )
 
         Box(
@@ -78,6 +84,7 @@ fun GuessDistribution(
 
                 Spacer(modifier = Modifier.width(8.dp))
                 if (key != 7) {
+                    /* Vertical line */
                     Box(
                         modifier = Modifier
                             .fillMaxHeight()
@@ -89,7 +96,7 @@ fun GuessDistribution(
                     BoxWithConstraints(
                         modifier = Modifier
                             .weight(10f)
-                            .height(40.dp),
+                            .height((40 * LocalDensity.current.fontScale).dp),
                         contentAlignment = CenterStart
                     ) {
                         val boxWidth by remember { mutableStateOf(this.maxWidth) }

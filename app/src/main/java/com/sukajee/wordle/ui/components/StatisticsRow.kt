@@ -29,28 +29,28 @@ fun StatisticsRow(
             percentage.toInt().toString()
         }
         StatsItem(
-            modifier = Modifier.weight(1f),
+            modifier = modifier.weight(1f),
             stat = Stat(
                 text = stringResource(id = R.string.played),
                 value = stats.playStats.playedCount.toString()
             )
         )
         StatsItem(
-            modifier = Modifier.weight(1f),
+            modifier = modifier.weight(1f),
             stat = Stat(
                 text = stringResource(id = R.string.win_percentage),
                 value = winPercent
             )
         )
         StatsItem(
-            modifier = Modifier.weight(1f),
+            modifier = modifier.weight(1f),
             stat = Stat(
                 text = stringResource(id = R.string.current_streak),
                 value = stats.playStats.currentStreak.toString()
             )
         )
         StatsItem(
-            modifier = Modifier.weight(1f),
+            modifier = modifier.weight(1f),
             stat = Stat(
                 text = stringResource(id = R.string.max_streak),
                 value = stats.playStats.maxStreak.toString()

@@ -38,7 +38,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWordRepository(context: Context, dao: WordleDao): BaseRepository = WordleRepository(context, dao)
+    fun provideWordRepository(context: Context, dao: WordleDao): BaseRepository =
+        WordleRepository(context, dao)
 
     @Provides
     @Singleton

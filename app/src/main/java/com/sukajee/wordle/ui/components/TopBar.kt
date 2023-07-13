@@ -31,7 +31,7 @@ fun TopBar(
     title: String,
     screenName: Screen,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary,
+    backgroundColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
     onClick: () -> Unit = { }
 ) {
     CenterAlignedTopAppBar(
@@ -53,6 +53,9 @@ fun TopBar(
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = backgroundColor,
             titleContentColor = titleColor
+            /**/
+//            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+//            titleContentColor = MaterialTheme.colorScheme.onSurface
         ),
         navigationIcon = {
             if (screenName != Screen.HomeScreen) {

@@ -59,7 +59,7 @@ import androidx.compose.ui.tooling.preview.Preview
     fontScale = 1.5f,
     uiMode = UI_MODE_NIGHT_NO,
 
-)
+    )
 @Preview(
     name = "Small Font",
     showSystemUi = true,
@@ -100,6 +100,18 @@ import androidx.compose.ui.tooling.preview.Preview
 )
 annotation class FontScalePreviews
 
-@Preview(name = "Pixel XL", group = "Devices", device = Devices.PIXEL_XL, showSystemUi = true, showBackground = true)
-@Preview(name = "Pixel C", group = "Devices", device = Devices.PIXEL_C, showSystemUi = true, showBackground = true)
+@Preview(
+    name = "Pixel XL",
+    group = "Devices",
+    device = Devices.PIXEL_XL,
+    showSystemUi = true,
+    showBackground = true
+)
+@Preview(
+    name = "Pixel C",
+    group = "Devices",
+    device = Devices.PIXEL_C,
+    showSystemUi = true,
+    showBackground = true
+)
 annotation class OrientationPreviews

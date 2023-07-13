@@ -240,11 +240,11 @@ fun PortraitMainScreen(
         Keyboard(
             keyState = keyState,
             onKey = {
-                audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK,1.0f)
+                audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK, 1.0f)
                 onEvent(WordleEvent.OnKey(it))
             },
             onBackSpace = {
-                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE,1.0f)
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, 1.0f)
                 onEvent(WordleEvent.OnBackSpace)
             }
         )

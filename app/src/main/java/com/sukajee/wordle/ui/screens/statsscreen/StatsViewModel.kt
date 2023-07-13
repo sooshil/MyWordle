@@ -43,7 +43,7 @@ class StatsViewModel @Inject constructor(
         val maxStreak = sharedPreferences.getInt(MAX_STREAK_COUNT, 0)
 
         for (i in 1..6) {
-            guesses[i] = playedWords.count { it.attempt == i}
+            guesses[i] = playedWords.count { it.attempt == i }
         }
         _statUiState.update { currentState ->
             Log.d("TAG", "StatsViewModel: won = $won")

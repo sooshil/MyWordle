@@ -24,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.ui.screens.mainscreen.KeyState
 import com.sukajee.wordle.util.getKeyColor
+import com.sukajee.wordle.util.scaledSp
 
 @Composable
 fun Keyboard(
@@ -65,8 +65,8 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 18.sp
+                            style = MaterialTheme.typography.titleSmall,
+                            fontSize = 24.scaledSp()
                         )
                     }
                 }
@@ -93,8 +93,8 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 18.sp
+                            style = MaterialTheme.typography.titleSmall,
+                            fontSize = 24.scaledSp()
                         )
                     }
                 }
@@ -134,8 +134,8 @@ fun Keyboard(
                         Text(
                             text = char.toString(),
                             color = Color.White,
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontSize = 18.sp
+                            style = MaterialTheme.typography.titleSmall,
+                            fontSize = 24.scaledSp()
                         )
                     }
                 }

@@ -1,4 +1,5 @@
 package com.sukajee.wordle.ui.theme
+
 import androidx.compose.ui.graphics.Color
 
 val Purple80 = Color(0xFFE8BCFF)

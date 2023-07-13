@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.lang.Exception
 import javax.inject.Inject
 
 private const val TAG = "WordleRepository"

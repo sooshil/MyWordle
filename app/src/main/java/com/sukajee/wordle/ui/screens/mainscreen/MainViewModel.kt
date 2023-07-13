@@ -206,7 +206,7 @@ class MainViewModel @Inject constructor(
             if (hasWon || currentRow == 5) {
                 var playedWords = sharedPreferences.getInt(PLAYED_WORD_COUNT, 1)
                 sharedPreferences.edit().also {
-                    if(hasWon.not()) it.putInt(CURRENT_STREAK_COUNT, 0)
+                    if (hasWon.not()) it.putInt(CURRENT_STREAK_COUNT, 0)
                     it.putInt(PLAYED_WORD_COUNT, ++playedWords)
                 }.apply()
 
@@ -298,7 +298,7 @@ class MainViewModel @Inject constructor(
 
     private fun resetGameState(hasWon: Boolean) {
         currentRow = 0
-        if(hasWon.not()) getNewWord()
+        if (hasWon.not()) getNewWord()
         /* getNewWord() This is not required as once we update the correct word submission
         to the database, it will emmit the new word automatically. So, this is redundant. */
         _gameState.update { currentState ->

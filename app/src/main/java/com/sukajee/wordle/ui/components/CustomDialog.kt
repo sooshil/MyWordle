@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,6 @@ import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.sukajee.wordle.R
-import com.sukajee.wordle.ui.theme.PathWay
 
 @Composable
 fun CustomDialog(
@@ -83,11 +81,8 @@ fun CustomDialog(
                         Text(
                             text = title,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = TextStyle(
-                                fontSize = 24.sp,
-                                fontFamily = PathWay,
-                                fontWeight = FontWeight.Bold
-                            )
+                            style = MaterialTheme.typography.headlineSmall,
+                            textAlign = TextAlign.Center
                         )
                     }
 
@@ -97,12 +92,11 @@ fun CustomDialog(
                         modifier = Modifier.padding(horizontal = 16.dp),
                         text = message,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        style = TextStyle(
-                            lineHeight = 36.sp,
+                        style = MaterialTheme.typography.headlineSmall.copy(
                             fontSize = 18.sp,
-                            fontFamily = PathWay,
-                            textAlign = TextAlign.Center
-                        )
+                            fontWeight = FontWeight.Normal
+                        ),
+                        textAlign = TextAlign.Center
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -118,14 +112,11 @@ fun CustomDialog(
                                 shape = RoundedCornerShape(30.dp),
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(40.dp)
+                                    .wrapContentHeight()
                             ) {
                                 Text(
                                     text = negativeButtonText,
-                                    style = TextStyle(
-                                        fontSize = 18.sp,
-                                        fontFamily = PathWay
-                                    )
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                             Spacer(modifier = Modifier.width(24.dp))
@@ -140,10 +131,7 @@ fun CustomDialog(
                         ) {
                             Text(
                                 text = positiveButtonText,
-                                style = TextStyle(
-                                    fontSize = 18.sp,
-                                    fontFamily = PathWay
-                                )
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }

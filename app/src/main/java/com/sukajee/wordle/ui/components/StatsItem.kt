@@ -18,11 +18,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sukajee.wordle.util.ColorFor
 import com.sukajee.wordle.util.getColor
+import com.sukajee.wordle.util.scaledSp
 
 @Composable
 fun StatsItem(
@@ -37,13 +39,13 @@ fun StatsItem(
         )
     )
     Column(
-        modifier = modifier.aspectRatio(1f),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Card(
-            modifier = modifier
-                .aspectRatio(1f)
-                .padding(top = 4.dp),
+            modifier = Modifier.aspectRatio(1f),
             elevation = CardDefaults.cardElevation(8.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
@@ -55,8 +57,10 @@ fun StatsItem(
             ) {
                 Text(
                     text = value.toString(),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontSize = 40.sp,
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    fontSize = 40.scaledSp(),
                     color = getColor(forWhat = ColorFor.STATS_ITEM_TEXT)
                 )
             }
@@ -64,8 +68,10 @@ fun StatsItem(
         Text(
             modifier = Modifier.padding(top = 4.dp),
             text = stat.text,
-            style = MaterialTheme.typography.bodyMedium,
-            fontSize = 10.sp,
+            style = MaterialTheme.typography.titleSmall.copy(
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Normal
+            ),
             textAlign = TextAlign.Center
         )
     }
