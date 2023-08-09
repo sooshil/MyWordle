@@ -32,7 +32,7 @@ fun TopBar(
     title: String,
     screenName: Screen,
     titleColor: Color = MaterialTheme.colorScheme.onPrimary,
-    backgroundColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+    backgroundColor: Color = MaterialTheme.colorScheme.primary,
     onClick: () -> Unit = { }
 ) {
     CenterAlignedTopAppBar(

@@ -2,11 +2,11 @@ package com.sukajee.wordle.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFE8BCFF)
+val Purple80 = Color(0xFF021044)
 val PurpleGrey80 = Color(0xFFDCC2DC)
 val Pink80 = Color(0xFFEFB8EE)
 
-val Purple40 = Color(0xFF5097A4)
+val Purple40 = Color(0xFF062DBE)
 val PurpleGrey40 = Color(0xFF5B716E)
 val Pink40 = Color(0xFF7D5277)
 
