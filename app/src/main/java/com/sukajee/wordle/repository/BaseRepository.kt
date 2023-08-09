@@ -10,4 +10,7 @@ interface BaseRepository {
     suspend fun getAllWordsFromAsset(): List<String>
     suspend fun getTopWordsFromAsset(): List<String>
     suspend fun deleteAllWords()
+
+    suspend fun getWonCount(): Int?
+    suspend fun getPlayedWordStat(): List<WordleEntry>
 }

@@ -1,4 +1,4 @@
-package com.sukajee.wordle.ui
+package com.sukajee.wordle.ui.screens.mainscreen
 
 import com.sukajee.wordle.util.ErrorType
 

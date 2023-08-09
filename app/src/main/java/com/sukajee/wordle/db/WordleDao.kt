@@ -20,4 +20,10 @@ interface WordleDao {
 
     @Query("DELETE FROM wordle_entries")
     suspend fun deleteAllWords()
+
+    @Query("SELECT COUNT(isSolved) FROM wordle_entries WHERE isSolved = 1")
+    suspend fun getWonCount(): Int
+
+    @Query("SELECT * FROM wordle_entries WHERE isSolved = 1")
+    suspend fun getPlayedWordStat(): List<WordleEntry>
 }

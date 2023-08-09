@@ -5,29 +5,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sukajee.wordle.model.WordleEntry
 import com.sukajee.wordle.repository.BaseRepository
-import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.CellType
-import com.sukajee.wordle.ui.GameUiState
-import com.sukajee.wordle.ui.KeyState
 import com.sukajee.wordle.util.ButtonType
+import com.sukajee.wordle.util.CURRENT_STREAK_COUNT
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
+import com.sukajee.wordle.util.INTERNAL_WORD_COUNT
 import com.sukajee.wordle.util.IS_FIRST_TIME_RUN
 import com.sukajee.wordle.util.MAXIMUM_WORD_COUNT
+import com.sukajee.wordle.util.MAX_STREAK_COUNT
+import com.sukajee.wordle.util.PLAYED_WORD_COUNT
 import com.sukajee.wordle.util.UiEvent
-import com.sukajee.wordle.util.WORD_NUMBER
 import com.sukajee.wordle.util.WordleEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 private const val TAG = "MainViewModel"
 
@@ -52,7 +50,7 @@ class MainViewModel @Inject constructor(
     private var currentRow = 0
     private var usedCharData = mutableMapOf<Char, Int>()
 
-    private var currentWordCount by Delegates.notNull<Int>()
+    private var internalWordCount = 1
 
     private var allWords: List<String> = emptyList()
 
@@ -64,7 +62,10 @@ class MainViewModel @Inject constructor(
                 it.putBoolean(IS_FIRST_TIME_RUN, false)
             }.apply()
         }
-        currentWordCount = sharedPreferences.getInt(WORD_NUMBER, 1)
+        internalWordCount = sharedPreferences.getInt(INTERNAL_WORD_COUNT, 1)
+        if (internalWordCount > MAXIMUM_WORD_COUNT) {
+            checkIfDatabaseResetRequired()
+        }
         viewModelScope.launch {
             allWords = repository.getAllWordsFromAsset()
         }
@@ -74,7 +75,7 @@ class MainViewModel @Inject constructor(
     private fun fetchAndSaveWords() {
         val wordleEntries = mutableListOf<WordleEntry>()
         viewModelScope.launch {
-           val words = repository.getTopWordsFromAsset()
+            val words = repository.getTopWordsFromAsset()
             words.forEach { word ->
                 wordleEntries.add(
                     WordleEntry(word = word)
@@ -88,7 +89,15 @@ class MainViewModel @Inject constructor(
         val enteredWord = _gameState.value.grid[currentRow].map {
             it.char
         }.joinToString().replace(", ", "")
-        if(enteredWord.trim().isEmpty()) return
+        if (enteredWord.trim().isEmpty()) return
+        if (enteredWord.trim().length < 5) {
+            _gameState.update { currentUiState ->
+                currentUiState.copy(
+                    error = ErrorType.WordLengthNotValid(enteredWord)
+                )
+            }
+            return
+        }
         if (enteredWord.isDictionaryWord().not()) {
             _gameState.update { currentUiState ->
                 currentUiState.copy(
@@ -98,12 +107,12 @@ class MainViewModel @Inject constructor(
             return
         }
         updateGameState(enteredWord)
-        if (currentWordCount > 1000) {
-            checkIfDatabaseResetRequired()
-        }
     }
 
     private fun updateGameState(enteredWord: String) {
+        internalWordCount = sharedPreferences.getInt(INTERNAL_WORD_COUNT, 1)
+        var currentStreak = sharedPreferences.getInt(CURRENT_STREAK_COUNT, 0)
+        var maxStreak = sharedPreferences.getInt(MAX_STREAK_COUNT, 0)
         _gameState.update { currentState ->
             val grid = currentState.grid
             enteredWord.forEachIndexed { index, c ->
@@ -136,6 +145,7 @@ class MainViewModel @Inject constructor(
                                         cellType = CellType.WrongCharWrongPosition
                                     )
                                 }
+
                                 else -> {
                                     grid[currentRow][index] =
                                         Cell(
@@ -149,7 +159,9 @@ class MainViewModel @Inject constructor(
                     }
                     _keyState.update { currentState ->
                         currentState.redKeyList.remove(c)
-                        if (currentState.greenKeyList.contains(c).not()) currentState.orangeKeyList.add(c)
+                        if (currentState.greenKeyList.contains(c)
+                                .not()
+                        ) currentState.orangeKeyList.add(c)
                         currentState.copy(
                             orangeKeyList = currentState.orangeKeyList
                         )
@@ -182,11 +194,22 @@ class MainViewModel @Inject constructor(
                         )
                     )
                 }
+
                 sharedPreferences.edit().also {
-                    it.putInt(WORD_NUMBER, ++currentWordCount)
+                    it.putInt(INTERNAL_WORD_COUNT, ++internalWordCount)
+                    it.putInt(CURRENT_STREAK_COUNT, ++currentStreak)
+                    if (maxStreak < currentStreak) {
+                        it.putInt(MAX_STREAK_COUNT, ++maxStreak)
+                    }
                 }.apply()
             }
             if (hasWon || currentRow == 5) {
+                var playedWords = sharedPreferences.getInt(PLAYED_WORD_COUNT, 1)
+                sharedPreferences.edit().also {
+                    if (hasWon.not()) it.putInt(CURRENT_STREAK_COUNT, 0)
+                    it.putInt(PLAYED_WORD_COUNT, ++playedWords)
+                }.apply()
+
                 currentState.copy(
                     grid = grid,
                     isGameOver = true,
@@ -252,7 +275,7 @@ class MainViewModel @Inject constructor(
         when (event.dialogType) {
             DialogType.GAME_OVER_DIALOG -> {
                 when (event.buttonType) {
-                    ButtonType.POSITIVE -> resetGameState()
+                    ButtonType.POSITIVE -> resetGameState(event.hasWon)
                     ButtonType.NEGATIVE -> {}
                 }
             }
@@ -273,15 +296,18 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun resetGameState() {
+    private fun resetGameState(hasWon: Boolean) {
         currentRow = 0
-        getNewWord()
+        if (hasWon.not()) getNewWord()
+        /* getNewWord() This is not required as once we update the correct word submission
+        to the database, it will emmit the new word automatically. So, this is redundant. */
         _gameState.update { currentState ->
             currentState.copy(
                 grid = resetGrid(),
                 currentGridIndex = Pair(0, 0),
                 isGameOver = null,
-                hasWon = null
+                hasWon = null,
+                currentWordNumber = sharedPreferences.getInt(PLAYED_WORD_COUNT, 1)
             )
         }
         _keyState.update { currentState ->
@@ -294,13 +320,11 @@ class MainViewModel @Inject constructor(
     }
 
     private fun checkIfDatabaseResetRequired() {
-        if(currentWordCount > MAXIMUM_WORD_COUNT) {
-            viewModelScope.launch {
-                repository.deleteAllWords()
-                fetchAndSaveWords()
-            }
-            sharedPreferences.edit().also { it.putInt(WORD_NUMBER, 1) }.apply()
+        viewModelScope.launch {
+            repository.deleteAllWords()
+            fetchAndSaveWords()
         }
+        sharedPreferences.edit().also { it.putInt(INTERNAL_WORD_COUNT, 1) }.apply()
     }
 
     private fun resetGrid() = MutableList(size = 6) {
@@ -328,24 +352,17 @@ class MainViewModel @Inject constructor(
     private fun getNewWord() = viewModelScope.launch {
         _gameState.update {
             it.copy(
-                currentWordNumber = currentWordCount
+                currentWordNumber = sharedPreferences.getInt(PLAYED_WORD_COUNT, 1)
             )
         }
         repository.getWord()
             .filterNotNull()
-            .transform { entry ->
-                emit(entry)
-            }
-            .collect { wordleEntry ->
+            .collectLatest { wordleEntry ->
                 _currentWordleEntry.value = wordleEntry
             }
     }
 
     private fun getCharIndices(word: String, char: Char): List<Int> {
-        val indices = mutableListOf<Int>()
-        for (i in word.indices) {
-            if (word[i] == char) indices.add(i)
-        }
-        return indices
+        return word.mapIndexedNotNull { index, c -> if (c == char) index else null }
     }
 }

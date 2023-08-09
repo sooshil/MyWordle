@@ -19,7 +19,11 @@ import androidx.core.view.WindowCompat
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
     secondary = PurpleGrey80,
-    tertiary = Pink80
+    tertiary = Pink80,
+    background = Color(0xFF010922),
+    surface = Color(0xFF010922),
+    onBackground = Color(0xFFBCBBBD),
+    onSurface = Color(0xFFBCBBBD)
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,7 +36,7 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = Color.White,
     onTertiary = Color.White,
     onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
+    onSurface = Color(0xFF050609)
 )
 
 @Composable
@@ -58,6 +62,14 @@ fun WordleTheme(
             window.statusBarColor = colorScheme.primary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
+//        SideEffect {
+//            val window = (view.context as Activity).window
+//            val insets = WindowCompat.getInsetsController(window, view)
+//            window.statusBarColor = colorScheme.surface.toArgb() // choose a status bar color
+//            window.navigationBarColor = colorScheme.surface.toArgb() // choose a navigation bar color
+//            insets.isAppearanceLightStatusBars = !darkTheme
+//            insets.isAppearanceLightNavigationBars = !darkTheme
+//        }
     }
 
     MaterialTheme(

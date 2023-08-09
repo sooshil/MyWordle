@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.Flow
 import java.io.BufferedReader
 import java.io.InputStream
 import java.io.InputStreamReader
-import java.lang.Exception
 import javax.inject.Inject
 
 private const val TAG = "WordleRepository"
@@ -30,6 +29,10 @@ class WordleRepository @Inject constructor(
     override suspend fun insertWord(word: WordleEntry) = dao.insertWord(word)
 
     override suspend fun deleteAllWords() = dao.deleteAllWords()
+
+    override suspend fun getWonCount(): Int = dao.getWonCount()
+
+    override suspend fun getPlayedWordStat(): List<WordleEntry> = dao.getPlayedWordStat()
 
     private fun readFromAsset(context: Context, fileName: String): List<String> {
         try {

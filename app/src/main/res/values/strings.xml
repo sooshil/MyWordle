@@ -4,6 +4,11 @@
     <string name="hint">Hint</string>
     <string name="word_not_found_title">Word not found</string>
     <string name="word_not_found_message">The entered word: %1$s is not a valid word.</string>
+    <string name="incorrect_word_length">Invalid word</string>
+    <plurals name="incorrect_word_length_message">
+        <item quantity="one">Please enter a 5 letter word.\n%1$s has only %2$s letter.</item>
+        <item quantity="other">Please enter a 5 letter word.\n%1$s has only %2$s letters.</item>
+    </plurals>
     <string name="word_no">Word Number: %1$s</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
@@ -67,4 +72,10 @@
     <string name="word_not_found_variant_three">No success in finding the word. The hidden word was: %1$s.\nLet\'s hope for better luck with the next.</string>
     <string name="word_not_found_variant_four">The search for the word was unsuccessful. The hidden word was: %1$s.\nKeep going with the next word.</string>
     <string name="word_not_found_variant_five">The word stayed unresolved. The hidden word was: %1$s.\nBetter luck with the next one.</string>
+    <string name="statistics">Statistics</string>
+    <string name="played">Played</string>
+    <string name="win_percentage">Win %</string>
+    <string name="current_streak">Win Streak</string>
+    <string name="max_streak">Max Streak</string>
+    <string name="guess_distribution">Guess Distribution</string>
 </resources>

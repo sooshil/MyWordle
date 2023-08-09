@@ -9,7 +9,8 @@ sealed class WordleEvent {
     object OnBackSpace : WordleEvent()
     data class OnDialogButtonClick(
         val buttonType: ButtonType,
-        val dialogType: DialogType
+        val dialogType: DialogType,
+        val hasWon: Boolean = false
     ) : WordleEvent()
 }
 

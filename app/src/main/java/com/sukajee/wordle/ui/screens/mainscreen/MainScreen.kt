@@ -1,9 +1,10 @@
 package com.sukajee.wordle.ui.screens.mainscreen
 
+import android.content.Context
 import android.content.res.Configuration
+import android.media.AudioManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,22 +27,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.sukajee.wordle.R
-import com.sukajee.wordle.ui.Cell
-import com.sukajee.wordle.ui.GameUiState
-import com.sukajee.wordle.ui.KeyState
+import com.sukajee.wordle.navigation.Screen
 import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
@@ -60,6 +60,7 @@ import com.sukajee.wordle.R.string as strings
 
 @Composable
 fun MainScreen(
+    navController: NavController,
     viewModel: MainViewModel
 ) {
     val state by viewModel.gameState.collectAsState()
@@ -71,34 +72,32 @@ fun MainScreen(
         currentWord = currentWordleEntry.word,
         state = state,
         onEvent = { viewModel.onEvent(it) },
+        onMenuClick = { navController.navigate(Screen.StatsScreen.route) },
         keyState = keyState
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun StateLessMainScreen(
     currentWord: String,
     state: GameUiState,
     keyState: KeyState,
     onEvent: (WordleEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onMenuClick: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-    var shouldShowWord by remember {
-        mutableStateOf(false)
-    }
+
     Scaffold(
         modifier = modifier
             .fillMaxSize(),
         topBar = {
             TopBar(
-                modifier = Modifier
-                    .clickable {
-                        shouldShowWord = !shouldShowWord
-                    },
-                title = if (shouldShowWord) currentWord else "Word No - ${state.currentWordNumber.toString().padWithZeros()}"
+                title = "WORD NO - ${state.currentWordNumber.toString().padWithZeros()}",
+                screenName = Screen.HomeScreen,
+                onClick = onMenuClick
             )
         }
     ) { padding ->
@@ -125,6 +124,27 @@ fun StateLessMainScreen(
                         },
                         onDismiss = { }
                     )
+
+                    is ErrorType.WordLengthNotValid -> CustomDialog(
+                        animatingIconPath = R.raw.warning,
+                        title = stringResource(id = R.string.incorrect_word_length),
+                        message = pluralStringResource(
+                            id = R.plurals.incorrect_word_length_message,
+                            count = it.enteredWord.trim().length,
+                            it.enteredWord.trim(),
+                            it.enteredWord.trim().length
+                        ),
+                        positiveButtonText = stringResource(id = R.string.ok),
+                        onPositiveButtonClick = {
+                            onEvent(
+                                WordleEvent.OnDialogButtonClick(
+                                    dialogType = DialogType.ERROR_DIALOG,
+                                    buttonType = ButtonType.POSITIVE
+                                )
+                            )
+                        },
+                        onDismiss = { }
+                    )
                 }
             }
 
@@ -134,14 +154,16 @@ fun StateLessMainScreen(
                     CustomDialog(
                         animatingIconPath = if (won) R.raw.checkmark else R.raw.crossmark,
                         title = stringResource(id = if (won) Strings.getPositiveStrings() else Strings.getNegativeStrings()),
-                        message = if (won) stringResource(id =  Strings.wordFoundMessage()) else stringResource(
-                            id = Strings.wordNotFoundMessage(), currentWord),
+                        message = if (won) stringResource(id = Strings.wordFoundMessage()) else stringResource(
+                            id = Strings.wordNotFoundMessage(), currentWord
+                        ),
                         positiveButtonText = stringResource(id = R.string.ok),
                         onPositiveButtonClick = {
                             onEvent(
                                 WordleEvent.OnDialogButtonClick(
                                     buttonType = ButtonType.POSITIVE,
-                                    dialogType = DialogType.GAME_OVER_DIALOG
+                                    dialogType = DialogType.GAME_OVER_DIALOG,
+                                    hasWon = won
                                 )
                             )
                         },
@@ -181,6 +203,8 @@ fun PortraitMainScreen(
             .verticalScroll(state = rememberScrollState()),
         horizontalAlignment = CenterHorizontally
     ) {
+        val context = LocalContext.current
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         Column {
             Spacer(modifier = Modifier.height(32.dp))
             repeat(6) { eachRow ->
@@ -215,8 +239,14 @@ fun PortraitMainScreen(
         Spacer(modifier = Modifier.weight(1f))
         Keyboard(
             keyState = keyState,
-            onKey = { onEvent(WordleEvent.OnKey(it)) },
-            onBackSpace = { onEvent(WordleEvent.OnBackSpace) }
+            onKey = {
+                audioManager.playSoundEffect(AudioManager.FX_KEY_CLICK, 1.0f)
+                onEvent(WordleEvent.OnKey(it))
+            },
+            onBackSpace = {
+                audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_DELETE, 1.0f)
+                onEvent(WordleEvent.OnBackSpace)
+            }
         )
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -230,7 +260,7 @@ fun PortraitMainScreen(
             Button(
                 onClick = { onEvent(WordleEvent.OnSubmit) }
             ) {
-                Text(text = stringResource(id = strings.check), fontSize = 16.sp)
+                Text(text = stringResource(id = strings.check), fontSize = 14.sp)
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -258,6 +288,7 @@ fun MainScreenPreview() {
             currentGridIndex = Pair(0, 0)
         ),
         onEvent = {},
-        keyState = KeyState()
+        keyState = KeyState(),
+        onMenuClick = {}
     )
 }

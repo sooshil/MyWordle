@@ -2,12 +2,10 @@ package com.sukajee.wordle.ui.screens.mainscreen
 
 import android.content.SharedPreferences
 import com.sukajee.wordle.repository.BaseRepository
-import com.sukajee.wordle.ui.GameUiState
 import com.sukajee.wordle.ui.MainDispatcherRule
 import com.sukajee.wordle.util.WordleEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import org.junit.Assert
-import org.junit.Assert.*
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
