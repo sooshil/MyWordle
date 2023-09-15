@@ -41,7 +41,8 @@ fun GuessDistributionBar(
         targetValue = if (startAnimation) barWidth.dp else 0.dp,
         animationSpec = tween(
             durationMillis = 2000
-        )
+        ),
+        label = ""
     )
 
     val shape by remember(barType) {

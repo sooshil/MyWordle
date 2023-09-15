@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.sukajee.wordle.ui.screens.helpscreen.HelpScreen
 import com.sukajee.wordle.ui.screens.mainscreen.MainScreen
 import com.sukajee.wordle.ui.screens.mainscreen.MainViewModel
 import com.sukajee.wordle.ui.screens.statsscreen.StatsScreen
@@ -25,7 +26,9 @@ fun Navigation() {
             val statsViewModel: StatsViewModel = hiltViewModel()
             StatsScreen(navController = navController, statsViewModel = statsViewModel)
         }
+        composable(route = Screen.HelpScreen.route) {
+            HelpScreen(navController = navController)
+        }
         composable(route = Screen.SettingsScreen.route) {}
-        composable(route = Screen.HelpScreen.route) {}
     }
 }

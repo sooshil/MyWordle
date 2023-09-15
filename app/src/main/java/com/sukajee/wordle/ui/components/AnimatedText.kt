@@ -21,7 +21,7 @@ fun AnimatedText(
         targetValue = if (text != ' '.toString()) 34 else 1,
         animationSpec = tween(
             durationMillis = 400
-        )
+        ), label = ""
     )
 
     Text(

@@ -73,9 +73,20 @@
     <string name="word_not_found_variant_four">The search for the word was unsuccessful. The hidden word was: %1$s.\nKeep going with the next word.</string>
     <string name="word_not_found_variant_five">The word stayed unresolved. The hidden word was: %1$s.\nBetter luck with the next one.</string>
     <string name="statistics">Statistics</string>
+    <string name="help">Help</string>
     <string name="played">Played</string>
     <string name="win_percentage">Win %</string>
     <string name="current_streak">Win Streak</string>
     <string name="max_streak">Max Streak</string>
     <string name="guess_distribution">Guess Distribution</string>
+    <string name="not_enough_game_played">You have not won enough games to display the guess distribution. Please come back once you have won at least one game.</string>
+    <string name="guess_distribution_description">The graph below shows the count of words you have solved with the guesses from 1 to 6. For example, if you have solved 7 words in third guess, then the bar drawn from 3 will have value 7.</string>
+    <string name="help_screen_intro_text">Wordle is a word puzzle game where you guess a hidden five-letter word in six tries, using deductive reasoning and vocabulary skills. It\'s a beloved pastime for word enthusiasts, offering a challenging yet satisfying gameplay experience.\n\n\If you are unsure about how to play or the rules of the game, here is a step-by-step tutorial for you.\n\nYou can always come to this screen by clicking the help icon in the home screen of the app.</string>
+    <string name="help_screen_help_one_text">Enter a five-letter word from the dictionary and then click the \'Check\' button.</string>
+    <string name="help_screen_images_content_desc">Image that displays a state in the game.</string>
+    <string name="help_screen_help_two_text">After clicking the \'Check\' button, you will receive feedback on the word you entered. If it\'s a valid dictionary word, each letter from the word you entered will be highlighted on the grid and also on the keyboard. Refer to the screenshot below for a visual guide.</string>
+    <string name="help_screen_help_three_text">Green highlights indicate that the letter is in the hidden word and also in the correct position. Orange highlights indicate that the letter is in the hidden word but in the wrong position. Gray highlights mean the hidden word doesn\'t contain that letter.\n\nIn the example below, the letter \uD83C\uDD81 is highlighted green which means that the hidden word will have letter \uD83C\uDD81 in the fourth position while \uD83C\uDD70 is in the hidden word but not in the third position. Similarly, \uD83C\uDD7F is in the hidden word but not at the last position. That is why, letters \uD83C\uDD70 and \uD83C\uDD7F are highlighted orange. And finally, letters \uD83C\uDD82 and \uD83C\uDD77 are not in the hidden word, so highlighted gray.</string>
+    <string name="help_screen_help_four_text">Based on the feedback from the previous step, our current guess is \uD83C\uDD72\uD83C\uDD7E\uD83C\uDD7F\uD83C\uDD81\uD83C\uDD70. The feedback is displayed in the screenshot below, showing that we successfully identified the position of letter \uD83C\uDD70 in the hidden word.\n\nWe also know that letter \uD83C\uDD7E appears either in the first or third position. Consequently, we can conclude that the hidden word undoubtedly contains the letters \uD83C\uDD7E, \uD83C\uDD7F, \uD83C\uDD81, and \uD83C\uDD70. Furthermore, we\'ve determined that \uD83C\uDD81 and \uD83C\uDD70 occupy the fourth and last positions in the word, bringing us closer to our word guess.</string>
+    <string name="help_screen_help_five_text">This time, we\'re guessing the word as \uD83C\uDD7E\uD83C\uDD7F\uD83C\uDD74\uD83C\uDD81\uD83C\uDD70. Success! We\'ve made the correct guess, and you can see the confirmation dialog with a delightful animation in the screenshot below.</string>
+    <string name="help_screen_bottom_text">We hope, this was helpful for you to understand how this game works. Happy guessing!!!</string>
 </resources>

@@ -36,7 +36,8 @@ fun StatsItem(
         animationSpec = tween(
             durationMillis = 2000,
             easing = FastOutLinearInEasing
-        )
+        ),
+        label = ""
     )
     Column(
         modifier = modifier
