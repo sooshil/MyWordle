@@ -20,6 +20,7 @@ import androidx.navigation.NavController
 import com.sukajee.wordle.R
 import com.sukajee.wordle.navigation.Screen
 import com.sukajee.wordle.ui.components.GuessDistribution
+import com.sukajee.wordle.ui.components.MenuIcon
 import com.sukajee.wordle.ui.components.StatisticsRow
 import com.sukajee.wordle.ui.components.TopBar
 
@@ -31,18 +32,17 @@ fun StatsScreen(
     val stats by statsViewModel.statUiState.collectAsState()
     StateLessStatsScreen(
         stats = stats,
-        onClick = {
-            navController.popBackStack()
-        }
+        onClick = { navController.popBackStack() },
+        onMenuIconClick = { navController.popBackStack() }
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StateLessStatsScreen(
     modifier: Modifier = Modifier,
     stats: StatsUiState,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onMenuIconClick: (MenuIcon) -> Unit
 ) {
     Scaffold(
         modifier = modifier
@@ -51,7 +51,8 @@ fun StateLessStatsScreen(
             TopBar(
                 title = stringResource(id = R.string.statistics).uppercase(),
                 screenName = Screen.StatsScreen,
-                onClick = onClick
+                onNavigationIconClick = onClick,
+                onMenuIconClick = onMenuIconClick
             )
         }
     ) { padding ->

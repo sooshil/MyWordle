@@ -3,6 +3,7 @@ package com.sukajee.wordle.ui.screens.mainscreen
 import android.content.Context
 import android.content.res.Configuration
 import android.media.AudioManager
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -21,16 +22,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
@@ -45,6 +45,8 @@ import com.sukajee.wordle.navigation.Screen
 import com.sukajee.wordle.ui.components.AnimatedText
 import com.sukajee.wordle.ui.components.CustomDialog
 import com.sukajee.wordle.ui.components.Keyboard
+import com.sukajee.wordle.ui.components.MenuIcon
+import com.sukajee.wordle.ui.components.MenuIconNames
 import com.sukajee.wordle.ui.components.TopBar
 import com.sukajee.wordle.ui.previews.FontScalePreviews
 import com.sukajee.wordle.ui.previews.OrientationPreviews
@@ -52,10 +54,12 @@ import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
 import com.sukajee.wordle.util.Strings
+import com.sukajee.wordle.util.UiEvent
 import com.sukajee.wordle.util.WordleEvent
 import com.sukajee.wordle.util.getBorderColor
 import com.sukajee.wordle.util.getCellColor
 import com.sukajee.wordle.util.padWithZeros
+import kotlinx.coroutines.launch
 import com.sukajee.wordle.R.string as strings
 
 @Composable
@@ -66,18 +70,23 @@ fun MainScreen(
     val state by viewModel.gameState.collectAsState()
     val keyState by viewModel.keyState.collectAsState()
     val currentWordleEntry by viewModel.currentWordleEntry.collectAsState()
-    rememberCoroutineScope()
+    rememberCoroutineScope() // ???
 
     StateLessMainScreen(
         currentWord = currentWordleEntry.word,
         state = state,
         onEvent = { viewModel.onEvent(it) },
-        onMenuClick = { navController.navigate(Screen.StatsScreen.route) },
+        onMenuClick = {
+            when (it.iconName) {
+                MenuIconNames.HELP -> navController.navigate(Screen.HelpScreen.route)
+                MenuIconNames.STATISTICS -> navController.navigate(Screen.StatsScreen.route)
+                else -> Log.e("MainScreen", "The menu item type ${it.iconName} is not handled.")
+            }
+        },
         keyState = keyState
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun StateLessMainScreen(
     currentWord: String,
@@ -85,7 +94,7 @@ fun StateLessMainScreen(
     keyState: KeyState,
     onEvent: (WordleEvent) -> Unit,
     modifier: Modifier = Modifier,
-    onMenuClick: () -> Unit
+    onMenuClick: (MenuIcon) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val portrait = configuration.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -97,7 +106,8 @@ fun StateLessMainScreen(
             TopBar(
                 title = "WORD NO - ${state.currentWordNumber.toString().padWithZeros()}",
                 screenName = Screen.HomeScreen,
-                onClick = onMenuClick
+                onNavigationIconClick = {},
+                onMenuIconClick = onMenuClick
             )
         }
     ) { padding ->
@@ -265,11 +275,6 @@ fun PortraitMainScreen(
         }
         Spacer(modifier = Modifier.height(8.dp))
     }
-}
-
-@Composable
-fun LandscapeMainScreen(padding: PaddingValues) {
-
 }
 
 @FontScalePreviews
