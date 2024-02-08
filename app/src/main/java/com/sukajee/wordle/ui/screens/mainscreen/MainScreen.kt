@@ -69,7 +69,6 @@ fun MainScreen(
     val state by viewModel.gameState.collectAsState()
     val keyState by viewModel.keyState.collectAsState()
     val currentWordleEntry by viewModel.currentWordleEntry.collectAsState()
-//    rememberCoroutineScope() // ???
 
     StateLessMainScreen(
         currentWord = currentWordleEntry.word,
