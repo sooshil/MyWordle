@@ -25,10 +25,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -54,12 +55,10 @@ import com.sukajee.wordle.util.ButtonType
 import com.sukajee.wordle.util.DialogType
 import com.sukajee.wordle.util.ErrorType
 import com.sukajee.wordle.util.Strings
-import com.sukajee.wordle.util.UiEvent
 import com.sukajee.wordle.util.WordleEvent
 import com.sukajee.wordle.util.getBorderColor
 import com.sukajee.wordle.util.getCellColor
 import com.sukajee.wordle.util.padWithZeros
-import kotlinx.coroutines.launch
 import com.sukajee.wordle.R.string as strings
 
 @Composable
@@ -70,7 +69,7 @@ fun MainScreen(
     val state by viewModel.gameState.collectAsState()
     val keyState by viewModel.keyState.collectAsState()
     val currentWordleEntry by viewModel.currentWordleEntry.collectAsState()
-    rememberCoroutineScope() // ???
+//    rememberCoroutineScope() // ???
 
     StateLessMainScreen(
         currentWord = currentWordleEntry.word,
@@ -177,6 +176,16 @@ fun StateLessMainScreen(
                                 )
                             )
                         },
+                        negativeButtonText = stringResource(id = R.string.dismiss),
+                        onNegativeButtonClick = {
+                            onEvent(
+                                WordleEvent.OnDialogButtonClick(
+                                    buttonType = ButtonType.NEGATIVE,
+                                    dialogType = DialogType.GAME_OVER_DIALOG,
+                                    hasWon = won
+                                )
+                            )
+                        },
                         onDismiss = { }
                     )
                 }
@@ -268,9 +277,22 @@ fun PortraitMainScreen(
 //                Text(text = stringResource(id = strings.hint))
 //            }
             Button(
-                onClick = { onEvent(WordleEvent.OnSubmit) }
+                onClick = {
+                    onEvent(
+                        state.showStartNewGameButton?.let {
+                            WordleEvent.OnStartNewWordButtonClick(it)
+                        } ?: WordleEvent.OnSubmit
+                    )
+                }
             ) {
-                Text(text = stringResource(id = strings.check), fontSize = 14.sp)
+                Text(
+                    text = stringResource(
+                        id = state.showStartNewGameButton?.let {
+                            strings.new_game
+                        } ?: strings.check
+                    ),
+                    fontSize = 14.sp
+                )
             }
         }
         Spacer(modifier = Modifier.height(8.dp))

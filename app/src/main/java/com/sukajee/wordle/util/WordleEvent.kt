@@ -12,6 +12,8 @@ sealed class WordleEvent {
         val dialogType: DialogType,
         val hasWon: Boolean = false
     ) : WordleEvent()
+
+    data class OnStartNewWordButtonClick(val hasWon: Boolean) : WordleEvent()
 }
 
 enum class DialogType {
