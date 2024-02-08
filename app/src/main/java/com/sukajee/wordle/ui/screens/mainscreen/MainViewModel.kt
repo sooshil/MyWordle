@@ -276,7 +276,15 @@ class MainViewModel @Inject constructor(
             DialogType.GAME_OVER_DIALOG -> {
                 when (event.buttonType) {
                     ButtonType.POSITIVE -> resetGameState(event.hasWon)
-                    ButtonType.NEGATIVE -> {}
+                    ButtonType.NEGATIVE -> {
+                        _gameState.update { currentState ->
+                            currentState.copy(
+                                isGameOver = null,
+                                hasWon = event.hasWon,
+                                showStartNewGameButton = true
+                            )
+                        }
+                    }
                 }
             }
 
@@ -307,6 +315,7 @@ class MainViewModel @Inject constructor(
                 currentGridIndex = Pair(0, 0),
                 isGameOver = null,
                 hasWon = null,
+                showStartNewGameButton = null,
                 currentWordNumber = sharedPreferences.getInt(PLAYED_WORD_COUNT, 1)
             )
         }
@@ -346,6 +355,7 @@ class MainViewModel @Inject constructor(
             is WordleEvent.OnHint -> onHint()
             is WordleEvent.OnBackSpace -> onBackSpace()
             is WordleEvent.OnDialogButtonClick -> onDialogButtonClick(event)
+            is WordleEvent.OnStartNewWordButtonClick -> resetGameState(event.hasWon)
         }
     }
 

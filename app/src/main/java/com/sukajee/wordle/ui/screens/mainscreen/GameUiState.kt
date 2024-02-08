@@ -13,7 +13,8 @@ data class GameUiState(
     val isGameOver: Boolean? = null,
     val hasWon: Boolean? = null,
     val currentWordNumber: Int = 1,
-    val showFirstTimeDialog: Boolean? = false
+    val showFirstTimeDialog: Boolean? = false,
+    val showStartNewGameButton: Boolean? = null
 )
 
 data class Cell(
